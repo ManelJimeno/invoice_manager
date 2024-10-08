@@ -1,0 +1,192 @@
+#
+# Build project
+#
+# Part of https://github.com/ManelJimeno/invoice_manager (C) 2024
+#
+# Authors: Manel Jimeno <manel.jimeno@gmail.com>
+#
+# License: http://www.opensource.org/licenses/mit-license.php MIT
+#
+
+name: "Build project"
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - '**.png'
+      - '**.ico'
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+"
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - '**.png'
+      - '**.ico'
+
+env:
+  venv_path: ${{ github.workspace }}/venv
+  build_dir: "build"
+
+jobs:
+  build:
+    env:
+      build_dir: "build"
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { os: windows-latest, build_type: Release, venv: False, options: "" }
+          - { os: ubuntu-latest, build_type: Release, venv: False, options: "" }
+          - { os: macos-latest, build_type: Release, venv: True, options: "" }
+    runs-on: ${{matrix.config.os}}
+    steps:
+      - name: Download repo
+        uses: actions/checkout@v4
+      - name: Determine Python executable
+        shell: python
+        run: |
+          import os
+          import sys
+          import platform
+          python_exe = sys.executable
+          operating_system = platform.system()
+
+          if operating_system == "Windows":
+             pip_install_path = f"{os.environ['APPDATA']}\\Python\\Python{sys.version_info.major}{sys.version_info.minor}"
+          elif operating_system == "Linux":
+            pip_install_path = "os.environ['HOME']}/.local/bin"
+          elif operating_system == "Darwin":
+            pip_install_path = f"{os.environ['HOME']}/Library/Python/{sys.version_info.major}.{sys.version_info.minor}/bin"
+
+          print("System python: ", sys.executable, sys.version, pip_install_path)
+          # Output the Python executable path to the environment file
+          with open(os.getenv('GITHUB_ENV'), 'a') as env_file:
+            env_file.write(f'python_exe={python_exe}\n')
+            env_file.write(f'pip_install_path={pip_install_path}\n')
+      - name: Set up Python virtual environment and install dependencies
+        uses: ./.github/actions/create-venv
+        with:
+          python_exe: "${{ env.python_exe }}"
+          pip_install_path: "${{ env.pip_install_path }}"
+          venv_path: "${{ env.venv_path }}"
+          virtual: "${{ matrix.config.venv }}"
+          dependencies: "conan ninja sphinx breathe"
+      - name: Set up Bash Systems
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          source ./.github/scripts/environment.sh \
+            "${{ matrix.config.venv }}" \
+            "${{ env.venv_path }}" \
+            "${{ env.python_exe }}" \
+            "${{ env.pip_install_path }}" \
+            "${{ env.build_dir }}" \
+            "${{ matrix.config.build_type }}"
+
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            if command -v apt > /dev/null; then
+              sudo apt update
+              sudo apt install -y dpkg-dev rpm
+            fi
+          fi
+
+          echo "tools.system.package_manager:mode=install " >> "$(conan config home)/global.conf"
+          echo "tools.system.package_manager:sudo=on " >> "$(conan config home)/global.conf"
+
+      - name: Set up Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          choco install nsis
+      - name: Set up MSVC
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+      - name: Configure
+        shell: bash
+        run: |
+          source ./.github/scripts/environment.sh \
+            "${{ matrix.config.venv }}" \
+            "${{ env.venv_path }}" \
+            "${{ env.python_exe }}" \
+            "${{ env.pip_install_path }}" \
+            "${{ env.build_dir }}" \
+            "${{ matrix.config.build_type }}"
+
+          cmake -S. -B "${{ env.build_dir }}" -DCMAKE_BUILD_TYPE=${{matrix.config.build_type}} \
+              -DPRE_COMMIT_TOOL=OFF -G Ninja ${{matrix.config.options}}\
+              -DCONAN_REPOSITORY="artifactory" -DCONAN_URL="$ARTIFACTORY_ADDRESS" \
+              -DINVOICE_BUILD_DOC=ON -DINVOICE_BUILD_INSTALLER=ON \
+              -DCMAKE_INSTALL_PREFIX=./install_folder
+
+          conan upload "*" --confirm -r artifactory
+        env:
+          CONAN_PASSWORD: ${{ secrets.CONAN_PASSWORD }}
+          CONAN_USER: ${{ secrets.CONAN_USER }}
+          ARTIFACTORY_ADDRESS: ${{ secrets.ARTIFACTORY_ADDRESS }}
+      - name: Build
+        shell: bash
+        run: |
+          source ./.github/scripts/environment.sh \
+            "${{ matrix.config.venv }}" \
+            "${{ env.venv_path }}" \
+            "${{ env.python_exe }}" \
+            "${{ env.pip_install_path }}" \
+            "${{ env.build_dir }}" \
+            "${{ matrix.config.build_type }}"
+
+          cmake --build "${{ env.build_dir }}"
+      - name: Unit test windows
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: |
+          call ${{ env.build_dir }}\conan\build\generators\conanrun.bat
+          cmake --build "${{ env.build_dir }}" --target run_core_tests
+      - name: Unit test Linux & macOs
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          source ${{ env.build_dir }}/conan/build/${{matrix.config.build_type}}/generators/conanrun.sh
+          cmake --build "${{ env.build_dir }}" --target run_core_tests
+      - name: Install
+        shell: bash
+        run: |
+          source ./.github/scripts/environment.sh \
+            "${{ matrix.config.venv }}" \
+            "${{ env.venv_path }}" \
+            "${{ env.python_exe }}" \
+            "${{ env.pip_install_path }}" \
+            "${{ env.build_dir }}" \
+            "${{ matrix.config.build_type }}"
+
+          ninja -C "${{ env.build_dir }}" install
+      - name: Generate installer
+        shell: bash
+        run: |
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            source ${{ env.build_dir }}/conan/build/generators/conanrun.sh
+          else
+            source ${{ env.build_dir }}/conan/build/${{matrix.config.build_type}}/generators/conanrun.sh
+          fi
+          cmake --build "${{ env.build_dir }}" --target build_installer_invoice_manager
+          cd build
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            export INSTALLER_NAME=$(ls *.exe)
+          elif [[ "$RUNNER_OS" == "Linux" ]]; then
+            export INSTALLER_NAME=$(ls *.deb)
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            export INSTALLER_NAME=$(ls *.dmg)
+          fi
+          echo "installer_name=${INSTALLER_NAME}" >> $GITHUB_ENV
+      - name: Generate artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: invoice_manager-${{matrix.config.os}}
+          path: |
+            build/${{env.installer_name}}
+          retention-days: 1
+          if-no-files-found: error
