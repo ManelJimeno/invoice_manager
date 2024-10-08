@@ -1,0 +1,23 @@
+/**
+ * Part of https://github.com/ManelJimeno/invoice_manager (C) 2024
+ * Authors: Manel Jimeno <manel.jimeno@gmail.com>
+ * License: http://www.opensource.org/licenses/mit-license.php MIT
+ */
+
+#include "version.h"
+
+namespace core::package {
+    CORE_API Version getVersion() noexcept {
+        static const Version version
+        {
+            // clang-format off
+            "@PRODUCT_VERSION_LONG@",
+            "@PRODUCT_VERSION@",
+            @PRODUCT_VERSION_MAJOR@,
+            @PRODUCT_VERSION_MINOR@,
+            @PRODUCT_VERSION_REVISION@
+            // clang-format on
+        };
+        return version;
+    }
+}

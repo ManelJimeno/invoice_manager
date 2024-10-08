@@ -1,0 +1,74 @@
+# This file is managed by Conan, contents will be overwritten.
+# To keep your changes, remove these comment lines, but the plugin won't be able to modify your requirements
+
+requirements:
+  - "gtest/1.15.0"
+  - "qt/6.7.3"
+build_requirements:
+  - "doxygen/1.9.4"
+options:
+  - qt:
+      - gui: True
+      - qt3d: False
+      - qtdoc: False
+      - qtsvg: True
+      - opengl: dynamic
+      - qtcoap: False
+      - qtgrpc: False
+      - qtmqtt: False
+      - shared: True
+      - openssl: True
+      - qtopcua: False
+      - qtscxml: False
+      - qttools: False
+      - widgets: True
+      - with_pq: True
+      - qtcharts: False
+      - qtgraphs: False
+      - qtlottie: False
+      - qtspeech: False
+      - qt5compat: False
+      - qtquick3d: False
+      - qtsensors: False
+      - qtwayland: False
+      - qtwebview: False
+      - with_dbus: False
+      - with_glib: False
+      - with_md4c: True
+      - with_odbc: True
+      - with_zstd: False
+      - qtactiveqt: False
+      - qtlocation: False
+      - with_mysql: False
+      - with_pcre2: True
+      - qtdatavis3d: False
+      - qtserialbus: False
+      - qtwebengine: False
+      - with_brotli: True
+      - with_libpng: True
+      - with_vulkan: False
+      - qthttpserver: False
+      - qtmultimedia: False
+      - qtserialport: False
+      - qtwebchannel: False
+      - qtwebsockets: False
+      - with_libjpeg: False
+      - with_sqlite3: True
+      - qtdeclarative: True
+      - qtnetworkauth: False
+      - qtpositioning: False
+      - qtshadertools: True
+      - with_freetype: True
+      - with_harfbuzz: True
+      - qtconnectivity: False
+      - qtimageformats: True
+      - qttranslations: False
+      - qtquicktimeline: False
+      - qtremoteobjects: False
+      - qtlanguageserver: True
+      - qtquick3dphysics: False
+      - disabled_features:
+      - qtvirtualkeyboard: False
+      - multiconfiguration: False
+      - qtquickeffectmaker: False
+      - with_doubleconversion: True
