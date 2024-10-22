@@ -17,7 +17,14 @@ set(CMAKE_AUTORCC ON)
 
 # Set application name and sources
 set(APPLICATION_NAME "invoice_manager")
-set(APP_SOURCES main.cpp resources.qrc ui/main_window.cpp ui/main_window.h ui/main_window.qml)
+set(APP_SOURCES
+    main.cpp
+    resources.qrc
+    ui/main_window.cpp
+    ui/main_window.h
+    ui/main_window.qml
+    invoice_manager_app.cpp
+    invoice_manager_app.h)
 set(INSTALLER_NAME "Invoice manager")
 
 # macOS Specific Configuration
@@ -46,7 +53,7 @@ endif()
 
 # List of dependencies
 find_package(Qt6 REQUIRED COMPONENTS Widgets Quick Qml)
-set(PROGRAM_DEPENDENCIES invoice_core Qt6::Gui Qt6::Widgets Qt6::Quick Qt6::Qml)
+set(PROGRAM_DEPENDENCIES invoice_core Qt6::Gui Qt6::Widgets Qt6::Quick Qt6::Qml Qt6::Sql)
 
 # Add executable target
 add_executable(${APPLICATION_NAME} ${APP_SOURCES})
