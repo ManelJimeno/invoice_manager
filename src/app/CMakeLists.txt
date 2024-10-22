@@ -23,6 +23,8 @@ set(APP_SOURCES
     ui/main_window.cpp
     ui/main_window.h
     ui/main_window.qml
+    security/users/user.cpp
+    security/users/user.h
     invoice_manager_app.cpp
     invoice_manager_app.h)
 set(INSTALLER_NAME "Invoice manager")
