@@ -26,7 +26,7 @@ QSqlDatabase DBManager::connect(const QString& dbType, const QString& connection
 {
     if (!m_allowedDBTypes.contains(dbType))
     {
-        throw std::exception("This type of database is not registered.");
+        throw DBManagerException("This type of database is not registered.");
     }
     m_connections[connectionName] = QSqlDatabase::addDatabase(dbType);
     if (dbType.compare(DBManager::QSQLITE) == 0)

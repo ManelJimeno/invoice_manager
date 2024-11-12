@@ -9,6 +9,9 @@
 # Option to enable or disable building Unit Tests (UT) for Core module
 option(INVOICE_CORE_WITH_UT "Build UT for Core" ON)
 
+# Option to enable or disable building Unit Tests (UT) for Core module
+option(INVOICE_CORE_TOOLS "Build Core tools" ON)
+
 # Targets definition Define the core components and libraries
 set(CMAKE_COMPONENT_CORE core) # Core component
 set(CMAKE_COMPONENT_CORE_UT core_ut) # Core unit test component
@@ -109,6 +112,11 @@ install(
 
 # Create an alias for easier referencing of the core library
 add_library(invoice::${INVOICE_CORE_LIBRARY} ALIAS ${INVOICE_CORE_LIBRARY})
+
+# Add tools build
+if(INVOICE_CORE_TOOLS)
+    add_subdirectory(tools/db_api_generator)
+endif()
 
 # Unit test If unit tests are enabled, include the test configuration and build them
 if(INVOICE_CORE_WITH_UT)

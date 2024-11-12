@@ -14,9 +14,15 @@
 #include <QMap>
 #include <QSet>
 #include <QSqlDatabase>
+#include <exception.h>
 
 namespace core::db
 {
+
+class DBManagerException final : public Exception
+{
+    using Exception::Exception;
+};
 
 /**
  * @class DBManager

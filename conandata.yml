@@ -4,6 +4,7 @@
 requirements:
   - "gtest/1.15.0"
   - "qt/6.7.3"
+  - "fmt/11.0.2"
 build_requirements:
   - "doxygen/1.9.4"
 options:
