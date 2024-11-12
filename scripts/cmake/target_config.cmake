@@ -12,7 +12,7 @@ option(USE_CODE_WARNINGS_AS_ERRORS "Use code warnings as errors" ON)
 function(target_configure target_name)
 
     # Set the target's properties to use C++17 and disable C++ extensions
-    set_target_properties(${target_name} PROPERTIES CXX_STANDARD 17 CXX_EXTENSIONS OFF)
+    set_target_properties(${target_name} PROPERTIES CXX_STANDARD 20 CXX_EXTENSIONS OFF)
 
     # Check if the compiler is MSVC (Microsoft Visual C++)
     if(MSVC)
