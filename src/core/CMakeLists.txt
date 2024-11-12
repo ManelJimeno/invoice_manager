@@ -17,6 +17,10 @@ set(INVOICE_CORE_OBJ_LIBRARY ${INVOICE_CORE_LIBRARY}_obj) # Core object library
 
 # Define the source files for the core object library
 set(INVOICE_CORE_SOURCES
+    exception.cpp
+    db/db_exception.h
+    tools/tools.cpp
+    tools/tools.h
     settings/settings.cpp
     settings/settings.h
     settings/sql_settings.cpp
@@ -25,14 +29,20 @@ set(INVOICE_CORE_SOURCES
     settings/sqlite_settings.h
     include/dllexports.h
     include/version.h
-    db/table.cpp
-    db/table.h
+    db/dynamic_table.cpp
+    db/dynamic_table.h
     db/column.cpp
     db/column.h
-    db/sqlite_column.h
-    db/sqlite_column.cpp
-    db/sqlite_table.cpp
-    db/sqlite_table.h)
+    db/sqlite/sqlite_column.h
+    db/sqlite/sqlite_column.cpp
+    db/factory.cpp
+    db/factory.h
+    db/sqlite/sqlite_builder.cpp
+    db/sqlite/sqlite_builder.h
+    db/sql_builder.cpp
+    db/sql_builder.h
+    db/db_manager.cpp
+    db/db_manager.h)
 
 # Create the core object library target
 add_library(${INVOICE_CORE_OBJ_LIBRARY} OBJECT ${INVOICE_CORE_SOURCES})

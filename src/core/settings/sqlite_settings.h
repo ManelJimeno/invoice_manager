@@ -6,17 +6,17 @@
 
 #pragma once
 
-#include "db/sqlite_table.h"
+#include "db/dynamic_table.h"
 #include "sql_settings.h"
 
 namespace core::settings
 {
 
-class SQLiteSettings final : public SQLSettings<core::db::SQLiteTable>
+class SQLiteSettings final : public SQLSettings
 {
   public:
     // Constructor
-    CORE_API SQLiteSettings(const QSqlDatabase& database, const QString& tableNameParam);
+    CORE_API SQLiteSettings(const QSqlDatabase& database, QString name);
 
     CORE_API ~SQLiteSettings() override = default;
 

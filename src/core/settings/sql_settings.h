@@ -6,33 +6,37 @@
 
 #pragma once
 
+#include "db/dynamic_table.h"
 #include "settings.h"
+#include <QSqlDatabase>
 
 namespace core::settings
 {
 
-template <class table_type> class SQLSettings : public Settings
+class CORE_API SQLSettings : public Settings
 {
   protected:
     // Constructor
-    CORE_API explicit SQLSettings(table_type mTable) : m_table(mTable)
+    explicit SQLSettings(const QSqlDatabase& database, QString name,
+                         const std::initializer_list<std::shared_ptr<db::Column>> columns)
+        : m_table(database, std::move(name), columns)
     {
     }
 
   public:
-    CORE_API auto table()
+    auto table()
     {
         return m_table;
     };
 
-    CORE_API bool write() override = 0;
+    bool write() override = 0;
 
-    CORE_API bool read() override = 0;
+    bool read() override = 0;
 
-    CORE_API ~SQLSettings() override = default;
+    ~SQLSettings() override = default;
 
   protected:
-    table_type m_table;
+    db::DynamicTable m_table;
 };
 
 } // namespace core::settings
