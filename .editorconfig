@@ -15,5 +15,5 @@ indent_brace_style = Allman
 [*.{yml,yaml}]
 indent_size = 2
 
-[*.{md}]
+[*.md]
 indent_size = 2
