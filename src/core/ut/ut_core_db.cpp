@@ -4,26 +4,26 @@
  * License: http://www.opensource.org/licenses/mit-license.php MIT
  */
 
-#include "db/sqlite_table.h"
+#include "db/dynamic_table.h"
+#include "db/sqlite/sqlite_column.h"
+#include "tools/tools.h"
 #include <QCoreApplication>
-#include <QDir>
-#include <QStandardPaths>
+#include <QFile>
 #include <QTimer>
-#include <QUuid>
 #include <gtest/gtest.h>
 #include <memory>
 
 using namespace core::db;
 QSqlDatabase db;
-std::unique_ptr<SQLiteTable> table;
-static const std::initializer_list<SQLiteColumn> settingsColumns = {
-    SQLiteColumn("name", SQLiteDataType::TEXT,
-                 SQLiteModifier::isNotNull | SQLiteModifier::isUnique | SQLiteModifier::isPrimaryKey, "users_pk"),
-    SQLiteColumn("value", SQLiteDataType::TEXT)};
+std::unique_ptr<DynamicTable> table;
+static const std::initializer_list<std::shared_ptr<Column>> settingsColumns = {
+    std::make_shared<SQLiteColumn>("name", SQLiteColumn::SQLiteDataType::TEXT,
+                                   SQLiteModifier::isNotNull | SQLiteModifier::isUnique | SQLiteModifier::isPrimaryKey),
+    std::make_shared<SQLiteColumn>("value", SQLiteColumn::SQLiteDataType::TEXT)};
 
 TEST(SQLiteTable, create_table_when_not_exists)
 {
-    table = std::make_unique<core::db::SQLiteTable>(db, "TestTable", settingsColumns);
+    table = std::make_unique<core::db::DynamicTable>(db, "TestTable", settingsColumns);
     table->create();
 }
 
@@ -42,7 +42,7 @@ TEST(SQLiteTable, select)
 
 TEST(SQLiteTable, not_create_table_when_exists)
 {
-    table = std::make_unique<core::db::SQLiteTable>(db, "TestTable", settingsColumns);
+    table = std::make_unique<core::db::DynamicTable>(db, "TestTable", settingsColumns);
     table->create();
     const auto records = table->select();
     EXPECT_EQ(records.size(), 2);
@@ -74,9 +74,7 @@ int main(int argc, char* argv[])
     QCoreApplication app{argc, argv};
 
     QTimer::singleShot(0, [&]() {
-        const auto tempDir = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
-        const auto randomDbName = QUuid::createUuid().toString().remove("{").remove("}").replace("-", "_") + ".db";
-        const auto dbPath = QDir(tempDir).filePath(randomDbName);
+        const auto dbPath = core::tools::getTemporaryFileName(".db");
         db = QSqlDatabase::addDatabase("QSQLITE");
         db.setDatabaseName(dbPath);
 

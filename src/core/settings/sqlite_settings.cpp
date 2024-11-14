@@ -5,19 +5,19 @@
  */
 
 #include "sqlite_settings.h"
-#include "db/sqlite_table.h"
+#include "db/sqlite/sqlite_column.h"
 
 namespace core::settings
 {
 using namespace core::db;
 
-static const std::initializer_list<SQLiteColumn> settingsColumns = {
-    SQLiteColumn("name", SQLiteDataType::TEXT,
-                 SQLiteModifier::isNotNull | SQLiteModifier::isUnique | SQLiteModifier::isPrimaryKey, "users_pk"),
-    SQLiteColumn("value", SQLiteDataType::TEXT)};
+static const std::initializer_list<std::shared_ptr<db::Column>> settingsColumns = {
+    std::make_shared<SQLiteColumn>("name", SQLiteColumn::SQLiteDataType::TEXT,
+                                   SQLiteModifier::isNotNull | SQLiteModifier::isUnique | SQLiteModifier::isPrimaryKey),
+    std::make_shared<SQLiteColumn>("value", SQLiteColumn::SQLiteDataType::TEXT)};
 
-SQLiteSettings::SQLiteSettings(const QSqlDatabase& database, const QString& tableNameParam)
-    : SQLSettings(core::db::SQLiteTable(database, tableNameParam, settingsColumns))
+SQLiteSettings::SQLiteSettings(const QSqlDatabase& database, QString name)
+    : SQLSettings(database, std::move(name), settingsColumns)
 {
     m_table.create();
 }

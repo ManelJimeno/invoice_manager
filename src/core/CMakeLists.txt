@@ -9,6 +9,9 @@
 # Option to enable or disable building Unit Tests (UT) for Core module
 option(INVOICE_CORE_WITH_UT "Build UT for Core" ON)
 
+# Option to enable or disable building Unit Tests (UT) for Core module
+option(INVOICE_CORE_TOOLS "Build Core tools" ON)
+
 # Targets definition Define the core components and libraries
 set(CMAKE_COMPONENT_CORE core) # Core component
 set(CMAKE_COMPONENT_CORE_UT core_ut) # Core unit test component
@@ -17,6 +20,10 @@ set(INVOICE_CORE_OBJ_LIBRARY ${INVOICE_CORE_LIBRARY}_obj) # Core object library
 
 # Define the source files for the core object library
 set(INVOICE_CORE_SOURCES
+    exception.cpp
+    db/db_exception.h
+    tools/tools.cpp
+    tools/tools.h
     settings/settings.cpp
     settings/settings.h
     settings/sql_settings.cpp
@@ -25,14 +32,20 @@ set(INVOICE_CORE_SOURCES
     settings/sqlite_settings.h
     include/dllexports.h
     include/version.h
-    db/table.cpp
-    db/table.h
+    db/dynamic_table.cpp
+    db/dynamic_table.h
     db/column.cpp
     db/column.h
-    db/sqlite_column.h
-    db/sqlite_column.cpp
-    db/sqlite_table.cpp
-    db/sqlite_table.h)
+    db/sqlite/sqlite_column.h
+    db/sqlite/sqlite_column.cpp
+    db/factory.cpp
+    db/factory.h
+    db/sqlite/sqlite_builder.cpp
+    db/sqlite/sqlite_builder.h
+    db/sql_builder.cpp
+    db/sql_builder.h
+    db/db_manager.cpp
+    db/db_manager.h)
 
 # Create the core object library target
 add_library(${INVOICE_CORE_OBJ_LIBRARY} OBJECT ${INVOICE_CORE_SOURCES})
@@ -99,6 +112,11 @@ install(
 
 # Create an alias for easier referencing of the core library
 add_library(invoice::${INVOICE_CORE_LIBRARY} ALIAS ${INVOICE_CORE_LIBRARY})
+
+# Add tools build
+if(INVOICE_CORE_TOOLS)
+    add_subdirectory(tools/db_api_generator)
+endif()
 
 # Unit test If unit tests are enabled, include the test configuration and build them
 if(INVOICE_CORE_WITH_UT)
