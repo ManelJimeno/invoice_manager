@@ -1,6 +1,11 @@
 /**
- * @file sqlite_meta_info.h
- * @brief Contains the declaration of the SQLiteMetaInfo class.
+ * @file sqlite_builder.h
+ * @brief Contains the declaration of the SQLiteBuilder class.
+ *
+ * This file defines the SQLiteBuilder class, which provides methods for generating
+ * SQL statements such as CREATE TABLE, INSERT, UPDATE, DELETE, and SELECT specifically
+ * tailored for SQLite databases.
+ *
  * @copyright Copyright 2024 Manel Jimeno. All rights reserved.
  * @author Manel Jimeno <manel.jimeno@gmail.com>
  * @date 2024
@@ -16,90 +21,113 @@
 namespace core::db
 {
 
+/**
+ * @class SQLiteBuilder
+ * @brief A builder class for constructing SQL statements for SQLite tables.
+ *
+ * The SQLiteBuilder class is responsible for generating various SQL queries used
+ * to interact with SQLite tables, including table creation, data insertion, data
+ * updates, deletion, and selection.
+ */
 class SQLiteBuilder final : public SQLBuilder
 {
   public:
     /**
-     * @brief Constructor
+     * @brief Constructs a SQLiteBuilder instance.
+     *
+     * Initializes the builder with the SQLite database type defined in DBManager.
      */
     SQLiteBuilder() : SQLBuilder(DBManager::QSQLITE) {};
 
     /**
      * @brief Finds a column by name within a vector of Column shared pointers.
      *
-     * This function searches through a vector of Column pointers and returns
-     * a shared pointer to the column with the specified name, if it exists.
+     * Searches through the vector of columns and returns a shared pointer to
+     * the column with the specified name, if it exists.
      *
      * @param columnName The name of the column to search for.
-     * @return An optional containing the shared pointer to the Column if found; otherwise, std::nullopt.
+     * @return std::optional<std::shared_ptr<core::db::Column>> The shared pointer to the Column if found; otherwise,
+     * std::nullopt.
      */
     [[nodiscard]] std::optional<std::shared_ptr<core::db::Column>> column(const QString& columnName) override;
+
     /**
-     * @brief Generates a CREATE TABLE statement for the given table.
-     * @return The CREATE TABLE statement as a QString.
+     * @brief Generates a SQL CREATE TABLE statement.
+     *
+     * Constructs a SQL CREATE TABLE statement based on the columns provided, including
+     * foreign key constraints if defined in the columns.
+     *
+     * @return QString The CREATE TABLE statement as a QString.
      */
     [[nodiscard]] QString createTable() const override;
+
     /**
-     * @brief Generates SQL statements to create indices for the table, if any.
-     * @return A vector of SQL statements, each creating an index.
+     * @brief Generates SQL statements to create indices for columns.
+     *
+     * Creates a set of SQL statements to create indexes for columns that have index names defined.
+     * These statements are returned as a vector of individual SQL commands.
+     *
+     * @return QVector<QString> A vector of SQL statements, each creating an index.
      */
     [[nodiscard]] QVector<QString> createIndexes() const override;
+
     /**
-     * @brief Generates the SQL statement to insert a new row into the table.
+     * @brief Generates the SQL INSERT statement for inserting a new row.
      *
-     * This method constructs an SQL INSERT statement using placeholders for the column values.
+     * Constructs an SQL INSERT statement with placeholders for each column value. This
+     * is used to add a new row to the table with values bound to the placeholders.
      *
-     * @return A QString containing the SQL query to insert data into the table.
+     * @return QString A SQL query to insert data into the table.
      */
     [[nodiscard]] QString createInsert() const override;
 
     /**
-     * @brief Generates the SQL statement to update existing rows in the table.
+     * @brief Generates the SQL UPDATE statement to modify existing rows.
      *
-     * This method constructs an SQL UPDATE statement with placeholders for column values.
-     * It includes a WHERE clause to target specific rows.
+     * Constructs an SQL UPDATE statement with placeholders for column values.
+     * Includes a WHERE clause targeting specific rows based on their values.
      *
-     * @return A QString containing the SQL query to update rows in the table.
+     * @return QString A SQL query to update rows in the table.
      */
     [[nodiscard]] QString createUpdate() const override;
 
     /**
-     * @brief Generates the SQL statement to select all rows from the table.
+     * @brief Generates the SQL SELECT statement to retrieve all rows.
      *
-     * This method constructs a basic SQL SELECT statement that retrieves all columns and rows
-     * from the table.
+     * Constructs a simple SQL SELECT statement that retrieves all columns
+     * and rows from the table.
      *
-     * @return A QString containing the SQL query to select all rows from the table.
+     * @return QString A SQL query to select all rows from the table.
      */
     [[nodiscard]] QString createSelect() const override;
 
     /**
-     * @brief Generates the SQL statement to select rows by primary key.
+     * @brief Generates the SQL SELECT statement to select rows by primary key.
      *
-     * This method constructs a SQL SELECT statement with a WHERE clause to select rows based
-     * on their primary key values.
+     * Creates an SQL SELECT statement with a WHERE clause that filters rows
+     * based on their primary key values.
      *
-     * @return A QString containing the SQL query to select rows by primary key.
+     * @return QString A SQL query to select rows by primary key.
      */
     [[nodiscard]] QString createSelectPk() const override;
 
     /**
-     * @brief Generates the SQL statement to delete rows from the table.
+     * @brief Generates the SQL DELETE statement to remove rows from the table.
      *
-     * This method constructs a SQL DELETE statement that includes a WHERE clause to
-     * delete specific rows from the table.
+     * Constructs an SQL DELETE statement that includes a WHERE clause to delete
+     * specific rows from the table based on their column values.
      *
-     * @return A QString containing the SQL query to delete rows from the table.
+     * @return QString A SQL query to delete rows from the table.
      */
     [[nodiscard]] QString createDelete() const override;
 
     /**
-     * @brief Generates the WHERE clause for SQL queries based on indexed columns.
+     * @brief Generates the WHERE clause for SQL queries.
      *
-     * This method constructs a WHERE clause targeting columns marked as primary keys
-     * or indices, using placeholders for column values.
+     * Constructs a WHERE clause targeting columns that are marked as primary keys
+     * or indexed. Placeholder values are used for each column in the clause.
      *
-     * @return A QString containing the WHERE clause for SQL queries.
+     * @return QString The WHERE clause for SQL queries.
      */
     [[nodiscard]] QString whereClause() const override;
 };

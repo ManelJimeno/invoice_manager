@@ -1,10 +1,14 @@
 /**
  * @file sqlite_column.h
- * @brief Contains the declaration of the SQLiteColumn class that extends the Column class with SQLite-specific
+ * @brief Contains the declaration of the SQLiteColumn class, an extension of the Column class with SQLite-specific
  * properties.
- * @copyright Copyright 2024 Manel Jimeno.
+ *
+ * This file defines the SQLiteColumn class, which adds SQLite-specific functionality to represent
+ * individual columns in SQLite tables, including data types, modifiers, collation, and constraints.
+ *
+ * @copyright Copyright 2024 Manel Jimeno. All rights reserved.
+ * @author Manel Jimeno <manel.jimeno@gmail.com>
  * @date 2024
- * @author Manel Jimeno
  * @license MIT http://www.opensource.org/licenses/mit-license.php
  */
 
@@ -15,17 +19,18 @@ namespace core::db
 {
 
 /**
- * @brief Enumeration of SQLite column modifier.
+ * @brief Enumeration of SQLite column modifiers.
  *
- * This enum represents the different SQLite modifiers that can be used for table columns.
+ * Defines SQLite-specific modifiers that can be applied to table columns,
+ * such as primary key, unique constraint, and auto-increment.
  */
 enum class SQLiteModifier : unsigned int
 {
     None = 0,
-    isPrimaryKey = 1 << 0,    ///< The column is a primary key.
-    isAutoIncrement = 1 << 1, ///< The column auto-increments.
-    isUnique = 1 << 2,        ///< The column values must be unique.
-    isNotNull = 1 << 3,       ///< The column cannot have null values.
+    isPrimaryKey = 1 << 0,    ///< Specifies the column as a primary key.
+    isAutoIncrement = 1 << 1, ///< Enables auto-increment for the column.
+    isUnique = 1 << 2,        ///< Enforces uniqueness for values in the column.
+    isNotNull = 1 << 3,       ///< Prevents null values in the column.
 };
 
 // Enable bitwise operations for SQLiteModifier
@@ -37,8 +42,8 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(SQLiteModifiers)
  * @brief Represents a column in an SQLite database with SQLite-specific properties, such as collation and check
  * constraints.
  *
- * This class extends the generic Column class, adding properties specific to SQLite databases.
- * It includes fields for collation sequence, check constraints, and other SQLite-only modifiers.
+ * Extends the generic Column class by adding SQLite-specific details such as collation sequences,
+ * check constraints, and data types tailored to SQLite.
  */
 class CORE_API SQLiteColumn final : public Column
 {
@@ -46,30 +51,33 @@ class CORE_API SQLiteColumn final : public Column
     /**
      * @brief Enumeration of SQLite data types.
      *
-     * This enum represents the different SQLite data types that can be used for table columns.
+     * Represents SQLite-specific data types that can be used for table columns.
      */
     enum class SQLiteDataType
     {
-        INTEGER,   ///< Represents an INTEGER type in SQLite.
-        REAL,      ///< Represents a REAL (floating point) type in SQLite.
-        TEXT,      ///< Represents a TEXT type in SQLite.
-        BLOB,      ///< Represents a BLOB type in SQLite for binary data.
-        NULL_TYPE, ///< Represents a NULL type in SQLite.
-        BOOLEAN,   ///< Represents a BOOLEAN type in SQLite.
-        DATETIME,  ///< Represents a DATETIME type in SQLite.
+        INTEGER,   ///< Integer type.
+        REAL,      ///< Floating-point number type.
+        TEXT,      ///< Text (string) type.
+        BLOB,      ///< Binary large object type for storing binary data.
+        NULL_TYPE, ///< Represents the NULL type.
+        BOOLEAN,   ///< Boolean type.
+        DATETIME,  ///< Date and time type.
     };
 
     /**
-     * @brief Constructs an SQLiteColumn with given name, type, modifiers, and optional properties.
+     * @brief Constructs an SQLiteColumn with the specified properties.
      *
-     * @param name The name of the column.
-     * @param type The data type of the column (e.g., INTEGER, TEXT).
-     * @param modifiers A bitmask of SQLite-specific modifiers (e.g., PRIMARY KEY, AUTOINCREMENT).
+     * Initializes an SQLiteColumn with properties such as name, type, modifiers,
+     * optional default value, foreign key, check condition, and collation.
+     *
+     * @param name The column name.
+     * @param type The SQLite data type for the column.
+     * @param modifiers Bitmask of SQLiteModifiers for properties like PRIMARY KEY, UNIQUE, etc.
      * @param indexName Optional index name for the column.
-     * @param defaultValue Optional default value for the column.
-     * @param foreignKey Optional foreign key reference for the column.
-     * @param checkCondition Optional SQL condition for a CHECK constraint.
-     * @param collate Optional collation sequence name for the column.
+     * @param defaultValue Optional default value.
+     * @param foreignKey Optional foreign key reference.
+     * @param checkCondition Optional SQL check constraint.
+     * @param collate Optional collation sequence for the column.
      */
     SQLiteColumn(QString name, const SQLiteDataType type,
                  QFlags<SQLiteModifiers::enum_type> modifiers = SQLiteModifier::None,
@@ -83,74 +91,93 @@ class CORE_API SQLiteColumn final : public Column
     }
 
     /**
-     * @brief Retrieves the collation sequence name for the column, if set.
-     * @return The optional collation sequence name, or nullopt if not set.
+     * @brief Retrieves the collation sequence for the column, if defined.
+     *
+     * @return An optional QString containing the collation sequence name, or std::nullopt if not set.
      */
     [[nodiscard]] auto collate() const
     {
         return m_collate;
     }
 
+    using Column::hasModifier;
+
     /**
-     * @brief Checks if the column has a specific modifier.
-     * @param modifier The modifier to check.
-     * @return True if the modifier is present, false otherwise.
+     * @brief Checks if the column has a specific SQLite modifier.
+     *
+     * @param modifier The SQLite modifier to check (e.g., PRIMARY KEY, UNIQUE).
+     * @return True if the column has the modifier, false otherwise.
      */
     [[nodiscard]] bool hasModifier(SQLiteModifiers modifier) const;
+
     /**
-     * @brief Converts a SQLiteDataType enum value to its corresponding SQLite type string.
+     * @brief Converts an SQLiteDataType enum value to a corresponding SQL type string.
      *
-     * This static method translates a SQLiteDataType enum into a string representation
-     * that can be used in SQL queries (e.g., INTEGER, REAL, TEXT).
+     * Maps the given SQLiteDataType enum to a string (e.g., INTEGER, TEXT) for use in SQL queries.
      *
      * @param type The SQLiteDataType enum value.
-     * @return A QString representing the SQL type.
+     * @return A QString representing the SQL data type.
      */
     [[nodiscard]] static QString toSQLiteType(SQLiteColumn::SQLiteDataType type);
+
     /**
-     * @brief Converts a SQLite type string to its corresponding SQLiteDataType enum value.
+     * @brief Converts a SQL type string to its corresponding SQLiteDataType enum value.
      *
-     * This static method translates a SQLite type string into a SQLiteDataType enum
+     * Maps a SQL data type string (e.g., INTEGER, TEXT) to the corresponding SQLiteDataType enum.
      *
-     * @param typeStr The SQLiteDataType enum value.
-     * @return A QString representing the SQL type.
+     * @param typeStr The SQL type string.
+     * @return The corresponding SQLiteDataType enum.
      */
     [[nodiscard]] static SQLiteDataType fromSQLiteType(const QString& typeStr);
 
     /**
-     * @brief Converts an SQLite data type to its corresponding C++ type.
+     * @brief Converts an SQLiteDataType enum to a C++ type string.
      *
-     * This function takes an SQLiteDataType enumeration value and returns
-     * a string representation of the corresponding C++ data type.
+     * Returns the C++ data type string (e.g., int, QString) that corresponds to the SQLiteDataType.
      *
-     * @param type The SQLite data type to convert.
-     * @return A string representing the equivalent C++ type.
+     * @param type The SQLiteDataType enum value.
+     * @return A QString representing the C++ type.
      */
     [[nodiscard]] static QString dataTypeToCppType(SQLiteDataType type);
+
     /**
-     * @brief Converts a set of strings in a mask.
+     * @brief Converts a list of modifier strings to a bitmask.
      *
-     * @param modifiers The SQLiteDataType enum value.
-     * @return A mask with the modifiers.
+     * Takes a list of modifier strings and returns a bitmask representing those modifiers.
+     *
+     * @param modifiers A QStringList of modifier names.
+     * @return A bitmask of SQLiteModifier values.
      */
     static SQLiteModifier getModifierMask(const QStringList& modifiers);
 
     /**
-     * @brief Generates the full SQL definition of the column, including SQLite-specific properties.
+     * @brief Generates the SQL definition of the column, including SQLite-specific properties.
+     *
+     * Constructs the complete SQL column definition with properties such as type, modifiers, and constraints.
+     *
      * @return A QString containing the SQL column definition.
      */
     [[nodiscard]] QString columnDefinition() override;
+
     /**
-     * @brief Gets the column definition to compose the class.
-     * @return The definition of the column on cpp type.
+     * @brief Generates the C++ type definition of the column.
+     *
+     * Maps the SQLite column type to its equivalent C++ type.
+     *
+     * @return A QString representing the column type as a C++ type.
      */
     [[nodiscard]] QString columnToCppType() override;
 
-    SQLiteDataType columnType() const;
+    /**
+     * @brief Retrieves the SQLite data type of the column.
+     *
+     * @return The SQLiteDataType enum value representing the column's type.
+     */
+    [[nodiscard]] SQLiteDataType columnType() const;
 
   private:
-    std::optional<QString> m_collate; ///< Optional collation sequence for the column, specific to SQLite.
-    SQLiteDataType m_columnType;
+    std::optional<QString> m_collate; ///< Optional collation sequence specific to SQLite.
+    SQLiteDataType m_columnType;      ///< SQLite data type of the column.
 };
 
 } // namespace core::db

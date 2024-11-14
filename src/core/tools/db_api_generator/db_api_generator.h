@@ -9,37 +9,44 @@
 
 #pragma once
 
+// Includes QSqlDatabase class to interact with databases
 #include <QSqlDatabase>
 
+/**
+ * @class DBAPIGenerator
+ * @brief Generates C++ classes based on a database structure.
+ *
+ * The `DBAPIGenerator` class is responsible for generating C++ classes that interact with a database,
+ * based on table definitions extracted from a JSON file. The generated classes may include methods
+ * for performing SQL operations on the database.
+ */
 class DBAPIGenerator
 {
   public:
     /**
-     * @brief Constructor for DBAPIGenerator.
-     * @param database The database.
-     * @param verbose Enables verbose output.
+     * @brief Constructor for the DBAPIGenerator class.
+     *
+     * Initializes the DBAPIGenerator with a database connection and an option
+     * to enable verbose output during the class generation process.
+     *
+     * @param database The database (QSqlDatabase) used to fetch table information.
+     * @param verbose Enables or disables verbose output. Defaults to false.
      */
     explicit DBAPIGenerator(const QSqlDatabase& database, bool verbose = false);
 
     /**
-     * @brief Parse a JSON file to extract table definitions and SQL statements to a C++ class.
-     * @param filePath The path to the JSON file.
-     * @param outputDirectory The output folder of the generated classes
+     * @brief Parses a JSON file to extract table definitions and generate a C++ class.
+     *
+     * This method takes a JSON file containing table definitions and generates a corresponding C++ class
+     * that includes the necessary SQL operations (such as SELECT, INSERT, etc.).
+     *
+     * @param filePath The path to the JSON file containing the table definitions.
+     * @param outputDirectory The directory where the generated C++ classes will be placed.
+     *                        Defaults to the current directory (".").
      */
     void generateClass(const QString& filePath, const QString& outputDirectory = ".") const;
 
   private:
-    [[nodiscard]] std::string tableName() const;
-    [[nodiscard]] std::string className() const;
-    [[nodiscard]] std::string Record() const;
-    [[nodiscard]] static std::string NoSelectFunctions();
-    [[nodiscard]] std::string SelectFunctions() const;
-    [[nodiscard]] std::string NoSelectSentences() const;
-    [[nodiscard]] std::string SelectSentences() const;
-    [[nodiscard]] std::string NoSelectSqlQuery() const;
-    [[nodiscard]] std::string SelectSqlQuery() const;
-    [[nodiscard]] std::string classMethods() const;
-
-    bool m_verbose;          ///< Enable verbose output.
-    QSqlDatabase m_database; ///< Database
+    bool m_verbose;          ///< Flag to enable verbose output during the generation process.
+    QSqlDatabase m_database; ///< The database connection used to generate the classes.
 };

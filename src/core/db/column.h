@@ -1,6 +1,11 @@
 /**
  * @file column.h
  * @brief Contains the declaration of the Column class.
+ *
+ * This file defines the Column class, a foundational abstraction for database columns,
+ * which includes core properties such as name, data type, and optional constraints.
+ * It serves as a base for more specialized column classes with database-specific requirements.
+ *
  * @copyright Copyright 2024 Manel Jimeno. All rights reserved.
  * @author Manel Jimeno <manel.jimeno@gmail.com>
  * @date 2024
@@ -17,23 +22,27 @@ namespace core::db
 
 /**
  * @class Column
- * @brief Represents a basic database column with a name and data type.
+ * @brief Represents a basic database column with a name, data type, and modifiers.
  *
- * This class provides the fundamental properties of a database column,
- * specifically its name and data type. It serves as a base class for
- * more complex column types that may include additional properties.
+ * This class encapsulates essential column properties, including its name, data type,
+ * and optional properties like constraints and default values. It provides a base class
+ * for defining more complex column types with additional behavior or SQL-specific features.
  */
 class CORE_API Column
 {
   public:
     /**
      * @brief Constructor for the Column class.
+     *
+     * Initializes a Column with a specified name, type, and optional parameters
+     * for modifiers, index, foreign key, and constraints.
+     *
      * @param name The name of the column.
-     * @param type The data type of the column.
-     * @param modifiers The modifiers for the column (default is 0).
-     * @param indexName Optional index name
-     * @param foreignKey Optional foreign key definition.
-     * @param checkCondition Optional SQL condition for the CHECK constraint.
+     * @param type The data type of the column as a string.
+     * @param modifiers Bitmask representing column modifiers (default is 0).
+     * @param indexName Optional index name for indexing the column.
+     * @param foreignKey Optional foreign key definition for referential integrity.
+     * @param checkCondition Optional SQL condition for a CHECK constraint.
      * @param defaultValue Optional default value for the column.
      */
     Column(QString name, QString type, const unsigned int modifiers = 0,
@@ -42,99 +51,132 @@ class CORE_API Column
         : m_columnName(std::move(name)), m_dataType(std::move(type)), m_modifiers(modifiers),
           m_indexName(std::move(indexName)), m_foreignKey(std::move(foreignKey)),
           m_defaultValue(std::move(defaultValue)), m_customConstraint(std::move(checkCondition)) {};
+
     /**
-     * @brief Destructor
+     * @brief Virtual destructor for the Column class.
      */
     virtual ~Column() = default;
+
     /**
-     * @brief Gets the name of the column.
-     * @return The name of the column.
+     * @brief Retrieves the name of the column.
+     *
+     * @return A QString containing the column's name.
      */
     [[nodiscard]] QString columnName() const
     {
         return m_columnName;
     }
+
     /**
-     * @brief Gets the data type of the column.
-     * @return The data type of the column.
+     * @brief Retrieves the data type of the column.
+     *
+     * @return A QString containing the column's data type.
      */
     [[nodiscard]] QString dataType() const
     {
         return m_dataType;
     }
+
     /**
-     * @brief Gets the column definition to compose the "create table" statement.
-     * @return The definition of the column.
+     * @brief Constructs the SQL column definition for the "CREATE TABLE" statement.
+     *
+     * This is a pure virtual method, to be implemented by derived classes.
+     *
+     * @return A QString representing the SQL definition of the column.
      */
     [[nodiscard]] virtual QString columnDefinition() = 0;
+
     /**
-     * @brief Gets the column definition to compose the class.
-     * @return The definition of the column on cpp type.
+     * @brief Retrieves the C++ type that represents the column.
+     *
+     * This is a pure virtual method, to be implemented by derived classes, which converts
+     * the SQL data type to an equivalent C++ type representation.
+     *
+     * @return A QString representing the column's type as a C++ type.
      */
     [[nodiscard]] virtual QString columnToCppType() = 0;
+
     /**
      * @brief Checks if the column has a specific modifier.
-     * @param modifier The modifier to check.
-     * @return True if the modifier is present, false otherwise.
+     *
+     * This virtual method evaluates if a specified bitmask modifier is set.
+     *
+     * @param modifier The bitmask modifier to check.
+     * @return True if the column has the specified modifier, false otherwise.
      */
     [[nodiscard]] virtual bool hasModifier(unsigned int modifier) const;
 
     // Accessors for optional properties
+
     /**
-     * @brief Gets the name of the index, if any.
-     * @return An optional containing the index name, or nullopt if not set.
+     * @brief Retrieves the index name, if set.
+     *
+     * @return An optional QString containing the index name, or std::nullopt if not defined.
      */
     [[nodiscard]] std::optional<QString> indexName() const;
+
     /**
-     * @brief Gets the foreign key constraint, if any.
-     * @return An optional containing the foreign key, or nullopt if not set.
+     * @brief Retrieves the foreign key constraint, if defined.
+     *
+     * @return An optional QString containing the foreign key, or std::nullopt if not defined.
      */
     [[nodiscard]] virtual std::optional<QString> foreignKey() const;
+
     /**
-     * @brief Gets the default value for the column, if any.
-     * @return An optional containing the default value, or nullopt if not set.
+     * @brief Retrieves the default value for the column, if set.
+     *
+     * @return An optional QString containing the default value, or std::nullopt if not defined.
      */
     [[nodiscard]] virtual std::optional<QString> defaultValue() const;
+
     /**
-     * @brief Gets the custom constraint (e.g., unique), if any.
-     * @return An optional containing the custom constraint, or nullopt if not set.
+     * @brief Retrieves any custom constraint applied to the column, if set.
+     *
+     * Examples of constraints might include UNIQUE or CHECK constraints.
+     * @return An optional QString containing the custom constraint, or std::nullopt if not defined.
      */
     [[nodiscard]] std::optional<QString> customConstraint() const;
 
     // Modifiers for optional properties
 
     /**
-     * @brief Sets the name of the index.
-     * @param index The name of the index to set.
+     * @brief Sets the name of the index for the column.
+     *
+     * @param index The name of the index.
      */
     void setIndexName(const QString& index);
+
     /**
-     * @brief Sets the foreign key constraint.
-     * @param foreignKey The foreign key constraint to set.
+     * @brief Sets the foreign key constraint for the column.
+     *
+     * @param foreignKey The foreign key constraint.
      */
     void setForeignKey(const QString& foreignKey);
+
     /**
      * @brief Sets the default value for the column.
-     * @param value The default value to set.
+     *
+     * @param value The default value for the column.
      */
     void setDefaultValue(const QString& value);
+
     /**
-     * @brief Sets a custom constraint (e.g., unique).
-     * @param constraint The custom constraint to set.
+     * @brief Sets a custom constraint for the column.
+     *
+     * @param constraint The custom constraint, such as UNIQUE or CHECK.
      */
     void setCustomConstraint(const QString& constraint);
 
   protected:
-    QString m_columnName;     ///< Name of the column.
-    QString m_dataType;       ///< Data type of the column.
-    unsigned int m_modifiers; ///< Modifiers for the column, managed as a bitmask.
+    QString m_columnName;     ///< The name of the column.
+    QString m_dataType;       ///< The SQL data type of the column.
+    unsigned int m_modifiers; ///< Bitmask representing column modifiers.
 
     // Optional properties
-    std::optional<QString> m_indexName;        ///< Name of the index, if any.
-    std::optional<QString> m_foreignKey;       ///< Foreign key constraint, if any.
-                                               ///< foreign key clause.
-    std::optional<QString> m_defaultValue;     ///< Default value for the column, if any.
-    std::optional<QString> m_customConstraint; ///< Custom constraint (unique, etc).
+    std::optional<QString> m_indexName;        ///< Optional index name for the column.
+    std::optional<QString> m_foreignKey;       ///< Optional foreign key constraint.
+    std::optional<QString> m_defaultValue;     ///< Optional default value for the column.
+    std::optional<QString> m_customConstraint; ///< Optional custom constraint (e.g., UNIQUE, CHECK).
 };
 
 } // namespace core::db
