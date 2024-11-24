@@ -58,7 +58,7 @@ namespace core::db
         switch (type)
         {
             case SQLiteDataType::INTEGER:
-                return "int"; ///< C++ type for INTEGER
+                return "long long"; ///< C++ type for INTEGER
             case SQLiteDataType::REAL:
                 return "double"; ///< C++ type for REAL
             case SQLiteDataType::TEXT:
