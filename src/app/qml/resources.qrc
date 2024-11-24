@@ -4,6 +4,10 @@
 <RCC>
     <qresource prefix="/">
         <file>main_window.qml</file>
+        <file>init_dialog.qml</file>
+        <file>login_page.qml</file>
+        <file>progress_page.qml</file>
+        <file>CustomButton.qml</file>
     </qresource>
     <qresource prefix="/themes">
         <file>Themes/themes_01.qml</file>

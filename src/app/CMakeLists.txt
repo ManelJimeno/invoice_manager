@@ -32,7 +32,9 @@ set(APP_SOURCES
     modules/ui/main_window.cpp
     modules/ui/main_window.h
     invoice_manager_app.cpp
-    invoice_manager_app.h)
+    invoice_manager_app.h
+    init_dialog.cpp
+    init_dialog.h)
 set(INSTALLER_NAME "Invoice manager")
 
 # macOS Specific Configuration
