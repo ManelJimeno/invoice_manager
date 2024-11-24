@@ -19,10 +19,10 @@ set(CMAKE_AUTORCC ON)
 set(APPLICATION_NAME "invoice_manager")
 set(APP_SOURCES
     main.cpp
-    resources.qrc
-    ui/main_window.cpp
-    ui/main_window.h
-    ui/main_window.qml
+    qml/resources.qrc
+    qml/main_window.qml
+    modules/ui/main_window.cpp
+    modules/ui/main_window.h
     invoice_manager_app.cpp
     invoice_manager_app.h)
 set(INSTALLER_NAME "Invoice manager")
@@ -60,6 +60,10 @@ add_executable(${APPLICATION_NAME} ${APP_SOURCES})
 
 # Link necessary dependencies
 target_link_libraries(${APPLICATION_NAME} PRIVATE ${PROGRAM_DEPENDENCIES})
+
+# Include the source directories for the object library
+target_include_directories(${APPLICATION_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(${APPLICATION_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/modules)
 
 # Setup Qt deployment and configure the installer
 setup_qt_deployment(${APPLICATION_NAME})

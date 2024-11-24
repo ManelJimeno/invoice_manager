@@ -3,6 +3,6 @@
 <!-- License: http://www.opensource.org/licenses/mit-license.php MIT-->
 <RCC>
     <qresource prefix="/">
-        <file>ui/main_window.qml</file>
+        <file>main_window.qml</file>
     </qresource>
 </RCC>
