@@ -128,8 +128,33 @@ int main(int argc, char *argv[])
                                           "Directory containing the source code to compare.", "path/to/code");
     const QCommandLineOption compareFiles(QStringList() << "compare-files",
                                           "Compare the resulting files with the stored files.");
+    const QCommandLineOption testFilter(QStringList() << "gtest_filter", "Compatibility with GTest parameters.",
+                                        "value");
+    const QCommandLineOption testBrief(QStringList() << "gtest_brief", "Compatibility with GTest parameters.", "value");
+    const QCommandLineOption testColor(QStringList() << "gtest_color", "Compatibility with GTest parameters.", "value");
+    const QCommandLineOption testOutput(QStringList() << "gtest_output", "Compatibility with GTest parameters.",
+                                        "value");
+    const QCommandLineOption testBreak(QStringList() << "gtest_break_on_failure",
+                                       "Compatibility with GTest parameters.", "value");
+    const QCommandLineOption testPrintTime(QStringList() << "gtest_print_time", "Compatibility with GTest parameters.",
+                                           "value");
+    const QCommandLineOption testShuffle(QStringList() << "gtest_shuffle", "Compatibility with GTest parameters.",
+                                         "value");
+    const QCommandLineOption testRandomSeed(QStringList() << "gtest_random_seed",
+                                            "Compatibility with GTest parameters.", "value");
+    const QCommandLineOption testThrowOnFailure(QStringList() << "gtest_throw_on_failure",
+                                                "Compatibility with GTest parameters.", "value");
     parser.addOption(sourceFolder);
     parser.addOption(compareFiles);
+    parser.addOption(testFilter);
+    parser.addOption(testBrief);
+    parser.addOption(testColor);
+    parser.addOption(testOutput);
+    parser.addOption(testBreak);
+    parser.addOption(testPrintTime);
+    parser.addOption(testShuffle);
+    parser.addOption(testRandomSeed);
+    parser.addOption(testThrowOnFailure);
     parser.process(app);
 
     if (!parser.isSet(sourceFolder))
