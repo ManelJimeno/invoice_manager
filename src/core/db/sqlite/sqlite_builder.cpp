@@ -90,10 +90,21 @@ namespace core::db
         QString     query = "INSERT INTO " + m_tableName + " (";
         QStringList columnsList;
         QStringList valuesList;
-        for (const auto &column: m_columns)
+        for (const auto &item: m_columns)
         {
-            columnsList << column->columnName();
-            valuesList << ":" + column->columnName();
+            auto column = std::dynamic_pointer_cast<SQLiteColumn>(item);
+            if (!column->hasModifier(SQLiteModifier::isAutoIncrement))
+            {
+                columnsList << column->columnName();
+                if (column->defaultValue() != std::nullopt)
+                {
+                    valuesList << column->defaultValue().value();
+                }
+                else
+                {
+                    valuesList << ":" + column->columnName();
+                }
+            }
         }
         query += columnsList.join(", ") + ") VALUES (" + valuesList.join(", ") + ");";
         return query;
@@ -104,9 +115,20 @@ namespace core::db
         QString     query = "UPDATE " + m_tableName + " SET ";
         QStringList setList;
         QStringList whereList;
-        for (const auto &column: m_columns)
+        for (const auto &item: m_columns)
         {
-            setList << column->columnName() + "=:" + column->columnName();
+            auto column = std::dynamic_pointer_cast<SQLiteColumn>(item);
+            if (!column->hasModifier(SQLiteModifier::isAutoIncrement))
+            {
+                if (column->defaultValue() != std::nullopt)
+                {
+                    setList << column->columnName() + "=" + column->defaultValue().value();
+                }
+                else
+                {
+                    setList << column->columnName() + "=:" + column->columnName();
+                }
+            }
             if (column->indexName() != std::nullopt)
             {
                 whereList << column->columnName() + "=:" + column->columnName();
