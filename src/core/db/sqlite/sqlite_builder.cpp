@@ -150,6 +150,11 @@ namespace core::db
         return createSelect() + whereClause() + ";";
     }
 
+    QString SQLiteBuilder::createSelectCount() const
+    {
+        return "SELECT COUNT(*) rows FROM " + m_tableName + ";";
+    }
+
     QString SQLiteBuilder::createSelect() const
     {
         return "SELECT * FROM " + m_tableName;

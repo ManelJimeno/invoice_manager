@@ -150,6 +150,15 @@ namespace core::db
         [[nodiscard]] virtual QString createSelectPk() const = 0;
 
         /**
+         * @brief Creates the SQL SELECT COUNT statement using the primary key condition.
+         *
+         * Generates a SELECT statement specifically for made a select count
+         *
+         * @return The generated SELECT statement for primary key queries as a QString.
+         */
+        [[nodiscard]] virtual QString createSelectCount() const = 0;
+
+        /**
          * @brief Creates the SQL DELETE statement for the table.
          *
          * Generates an SQL DELETE statement to remove rows from the table, based on a condition.
