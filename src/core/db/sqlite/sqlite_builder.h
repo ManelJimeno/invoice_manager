@@ -140,6 +140,20 @@ namespace core::db
          * @return QString The WHERE clause for SQL queries.
          */
         [[nodiscard]] QString whereClause() const override;
+
+        /**
+         * @brief Retrieves the header name of the parent class.
+         *
+         * @return The header parent class name as a QString.
+         */
+        [[nodiscard]] QString headerParentClass() const override;
+
+        /**
+         * @brief Retrieves the name of the parent class.
+         *
+         * @return The parent class name as a QString.
+         */
+        [[nodiscard]] QString parentClass() const override;
     };
 
 } // namespace core::db

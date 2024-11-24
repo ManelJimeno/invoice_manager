@@ -177,6 +177,20 @@ namespace core::db
          */
         [[nodiscard]] virtual QString whereClause() const = 0;
 
+        /**
+         * @brief Retrieves the header name of the parent class.
+         *
+         * @return The header parent class name as a QString.
+         */
+        [[nodiscard]] virtual QString headerParentClass() const = 0;
+
+        /**
+         * @brief Retrieves the name of the parent class.
+         *
+         * @return The parent class name as a QString.
+         */
+        [[nodiscard]] virtual QString parentClass() const = 0;
+
     protected:
         /**
          * @brief Constructs an SQLBuilder for a specific database type.

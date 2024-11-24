@@ -191,4 +191,14 @@ namespace core::db
         return {};
     }
 
+    QString SQLiteBuilder::headerParentClass() const
+    {
+        return "\"db/sqlite/sqlite_db_api.h\"";
+    }
+
+    QString SQLiteBuilder::parentClass() const
+    {
+        return "core::db::SQLiteDbApi";
+    }
+
 } // namespace core::db
