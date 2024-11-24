@@ -5,4 +5,38 @@
     <qresource prefix="/">
         <file>main_window.qml</file>
     </qresource>
+    <qresource prefix="/themes">
+        <file>Themes/themes_01.qml</file>
+        <file>Themes/BaseFont.qml</file>
+        <file>Themes/qmldir</file>
+
+        <file>Themes/ttf/fontawesome-webfont.ttf</file>
+        <file>Themes/ttf/Font Awesome 6 Free-Solid-900.otf</file>
+
+        <file>Themes/ttf/DraftingMono/DraftingMono-Bold.otf</file>
+        <file>Themes/ttf/DraftingMono/DraftingMono-BoldItalic.otf</file>
+        <file>Themes/ttf/DraftingMono/DraftingMono-ExtraLight.otf</file>
+        <file>Themes/ttf/DraftingMono/DraftingMono-ExtraLightItalic.otf</file>
+        <file>Themes/ttf/DraftingMono/DraftingMono-Italic.otf</file>
+        <file>Themes/ttf/DraftingMono/DraftingMono-Light.otf</file>
+        <file>Themes/ttf/DraftingMono/DraftingMono-LightItalic.otf</file>
+        <file>Themes/ttf/DraftingMono/DraftingMono-Medium.otf</file>
+        <file>Themes/ttf/DraftingMono/DraftingMono-MediumItalic.otf</file>
+        <file>Themes/ttf/DraftingMono/DraftingMono-Regular.otf</file>
+        <file>Themes/ttf/DraftingMono/DraftingMono-SemiBold.otf</file>
+        <file>Themes/ttf/DraftingMono/DraftingMono-SemiBoldItalic.otf</file>
+        <file>Themes/ttf/DraftingMono/DraftingMono-Thin.otf</file>
+        <file>Themes/ttf/DraftingMono/DraftingMono-ThinItalic.otf</file>
+
+        <file>Themes/ttf/Outfit/Outfit-Black.ttf</file>
+        <file>Themes/ttf/Outfit/Outfit-Bold.ttf</file>
+        <file>Themes/ttf/Outfit/Outfit-ExtraBold.ttf</file>
+        <file>Themes/ttf/Outfit/Outfit-ExtraLight.ttf</file>
+        <file>Themes/ttf/Outfit/Outfit-Light.ttf</file>
+        <file>Themes/ttf/Outfit/Outfit-Medium.ttf</file>
+        <file>Themes/ttf/Outfit/Outfit-Regular.ttf</file>
+        <file>Themes/ttf/Outfit/Outfit-SemiBold.ttf</file>
+        <file>Themes/ttf/Outfit/Outfit-Thin.ttf</file>
+        <file>Themes/ttf/Outfit/Outfit-VariableFont_wght.ttf</file>
+    </qresource>
 </RCC>
