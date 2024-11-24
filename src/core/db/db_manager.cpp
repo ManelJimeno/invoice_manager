@@ -21,14 +21,21 @@ namespace core::db
         return manager;
     }
 
-    QSqlDatabase DBManager::connect(const QString &dbType, const QString &connectionInfo,
-                                    const QString &connectionName) const
+    QSqlDatabase DBManager::connect(const QString &dbType, const QString &connectionInfo, const QString &connectionName)
     {
         if (!m_allowedDBTypes.contains(dbType))
         {
             throw DBManagerException("This type of database is not registered.");
         }
-        m_connections[connectionName] = QSqlDatabase::addDatabase(dbType);
+        if (connectionName == "main")
+        {
+            m_main                        = QSqlDatabase::addDatabase(dbType);
+            m_connections[connectionName] = m_main;
+        }
+        else
+        {
+            m_connections[connectionName] = QSqlDatabase::addDatabase(dbType);
+        }
         if (dbType.compare(DBManager::QSQLITE) == 0)
         {
             m_connections[connectionName].setDatabaseName(connectionInfo);

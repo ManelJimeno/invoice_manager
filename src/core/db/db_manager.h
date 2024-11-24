@@ -81,7 +81,7 @@ namespace core::db
          * @return A `QSqlDatabase` object representing the connection.
          */
         [[nodiscard]] QSqlDatabase connect(const QString &dbType, const QString &connectionInfo = "",
-                                           const QString &connectionName = DEFAULT_CONNECTION) const;
+                                           const QString &connectionName = DEFAULT_CONNECTION);
 
         /**
          * @brief Retrieves an existing database connection.
