@@ -58,11 +58,13 @@ public:
     static constexpr auto COLLATE         = "collate"; ///< Collation for column.
 
     // Constants for default SQL statement names
-    static constexpr auto DEFAULT_STATEMENT_CREATE = "create";
-    static constexpr auto DEFAULT_STATEMENT_INSERT = "insert";
-    static constexpr auto DEFAULT_STATEMENT_UPDATE = "update";
-    static constexpr auto DEFAULT_STATEMENT_DELETE = "deleteRow";
-    static constexpr auto DEFAULT_STATEMENT_SELECT = "selectPk";
+    static constexpr auto DEFAULT_STATEMENT_CREATE = "create"; ///< Default CREATE statement.
+    static constexpr auto DEFAULT_STATEMENT_INSERT = "insert"; ///< Default INSERT statement.
+    static constexpr auto DEFAULT_STATEMENT_UPDATE = "update"; ///< Default UPDATE statement.
+    static constexpr auto DEFAULT_STATEMENT_DELETE = "deleteRow"; ///< Default DELETE statement.
+    static constexpr auto DEFAULT_STATEMENT_SELECT = "selectPk"; ///< Default SELECT statement by primary key.
+    static constexpr auto DEFAULT_STATEMENT_COUNT  = "countRows"; ///< Default COUNT statement.
+
 
     /**
      * @brief Constructor for DBClass.
@@ -141,6 +143,17 @@ public:
      * @return The source file name as a QString.
      */
     [[nodiscard]] QString getSourceFile() const;
+
+    /**
+     * @brief Retrieves the autoincrement field for a SQL statement.
+     *
+     * This method analyzes the given SQL statement and determines if there is an
+     * autoincrement field present, returning its corresponding definition.
+     *
+     * @param shared A shared pointer to the Statement object.
+     * @return A string containing the autoincrement field definition.
+     */
+    std::string getAutoincrement(const std::shared_ptr<Statement> &shared) const;
 
     /**
      * @brief Generates a method for a given SQL statement.

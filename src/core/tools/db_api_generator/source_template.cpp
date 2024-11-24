@@ -21,11 +21,12 @@ constexpr const char *getHeaderTemplate()
 
 #pragma once
 #include "db/db_manager.h"
+#include {header_parent_class_name}
 #include <QSqlQuery>
 #include <memory>
 #include <qdatetime.h>
 
-class {class_name}
+class {class_name} : public {parent_class_name}
 {{
   public:
     struct Record
@@ -39,7 +40,6 @@ class {class_name}
   private:
 
 {sentences}
-    QSqlDatabase m_database;
 
 {sql_query}
 }};
@@ -64,8 +64,9 @@ constexpr const char *getSourceTemplate()
 #include <QSqlRecord>
 
 {class_name}::{class_name}(const QSqlDatabase& db)
-    : m_database(db), {attributes}
+    : {parent_class_name}(db), {attributes}
 {{
+{prepare}
 }}
 
 void {class_name}::create()
@@ -87,7 +88,7 @@ void {class_name}::create()
 
 constexpr const char *getNoSelectMethod()
 {
-    return R"(void {class_name}::{method_name}(const std::shared_ptr<Record>& record)
+    return R"(void {class_name}::{method_name}(Record& record)
 {{
     {record_to_bind}
     if (!{sql_query}.exec())
@@ -99,9 +100,24 @@ constexpr const char *getNoSelectMethod()
 )";
 }
 
+constexpr const char *getInsertMethod()
+{
+    return R"(void {class_name}::{method_name}(Record& record)
+{{
+    {record_to_bind}
+    if (!{sql_query}.exec())
+    {{
+        throw core::db::SQLError({sql_query}.lastError().text());
+    }}
+    {recover_autoincrement}
+}}
+
+)";
+}
+
 constexpr const char *getUniqueSelectMethod()
 {
-    return R"(bool {class_name}::{method_name}(const std::shared_ptr<Record>& record)
+    return R"(bool {class_name}::{method_name}(Record& record)
 {{
     {record_to_bind}
     if (!{sql_query}.exec())
@@ -120,9 +136,29 @@ constexpr const char *getUniqueSelectMethod()
 )";
 }
 
+constexpr const char *getSelectCount()
+{
+    return R"(long long {class_name}::{method_name}()
+{{
+    {record_to_bind}
+    if (!{sql_query}.exec())
+    {{
+        throw core::db::SQLError({sql_query}.lastError().text());
+    }}
+    if ({sql_query}.next())
+    {{
+        const auto sqlRecord = {sql_query}.record();
+        return sqlRecord.value("rows").toLongLong();
+    }}
+    return 0;
+}}
+
+)";
+}
+
 constexpr const char *getSelectMethod()
 {
-    return R"(bool {class_name}::{method_name}(const std::shared_ptr<Record>& record)
+    return R"(bool {class_name}::{method_name}(Record& record)
 {{
     {record_to_bind}
     if (!{sql_query}.exec())
@@ -132,7 +168,7 @@ constexpr const char *getSelectMethod()
     return next{capitalized_method_name}(record);
 }}
 
-bool {class_name}::next{capitalized_method_name}(const std::shared_ptr<Record>& record)
+bool {class_name}::next{capitalized_method_name}(Record& record)
 {{
     if ({sql_query}.next())
     {{

@@ -93,6 +93,8 @@ void DBClass::loadDefaultSentences()
                                                        Statement::SQLTypes::deleteRow));
     m_statements.push_back(std::make_shared<Statement>(DEFAULT_STATEMENT_SELECT, m_builder->createSelectPk(), true,
                                                        Statement::SQLTypes::select));
+    m_statements.push_back(std::make_shared<Statement>(DEFAULT_STATEMENT_COUNT, m_builder->createSelectCount(), true,
+                                                       Statement::SQLTypes::count));
 }
 
 void DBClass::load(const QJsonDocument &document)
@@ -157,8 +159,10 @@ QString DBClass::getHeaderFile() const
                             { return acc + statement->sqlQuery().toStdString(); });
 
     fmt::dynamic_format_arg_store<fmt::format_context> headerArgs;
+    headerArgs.push_back(fmt::arg("header_parent_class_name", m_builder->headerParentClass().toStdString()));
     headerArgs.push_back(fmt::arg("table_name", m_builder->name().toStdString()));
     headerArgs.push_back(fmt::arg("class_name", m_className.toStdString()));
+    headerArgs.push_back(fmt::arg("parent_class_name", m_builder->parentClass().toStdString()));
     headerArgs.push_back(fmt::arg("record", recordStruct));
     headerArgs.push_back(fmt::arg("public_signatures", signatures));
     headerArgs.push_back(fmt::arg("sentences", sentences));
@@ -178,6 +182,9 @@ QString DBClass::getSourceFile() const
                                 const std::string separator = (&statement == &m_statements.back()) ? "" : ",";
                                 return acc + statement->attributes().toStdString() + separator;
                             });
+    const std::string prepare             = std::accumulate(m_statements.begin(), m_statements.end(), std::string{},
+                                                            [&](const std::string &acc, const std::shared_ptr<Statement> &statement)
+                                                            { return acc + statement->prepare().toStdString(); });
     const std::string createSentencesSize = fmt::format("{}", m_statements.at(0)->sqlSize());
     const std::string createSentences     = m_statements.at(0)->defines().toStdString();
     const std::string classMethods =
@@ -188,7 +195,9 @@ QString DBClass::getSourceFile() const
     fmt::dynamic_format_arg_store<fmt::format_context> sourceArguments;
     sourceArguments.push_back(fmt::arg("table_name", m_builder->name().toStdString()));
     sourceArguments.push_back(fmt::arg("class_name", m_className.toStdString()));
+    sourceArguments.push_back(fmt::arg("parent_class_name", m_builder->parentClass().toStdString()));
     sourceArguments.push_back(fmt::arg("attributes", attributes));
+    sourceArguments.push_back(fmt::arg("prepare", prepare));
     sourceArguments.push_back(fmt::arg("create_sentences_size", createSentencesSize));
     sourceArguments.push_back(fmt::arg("create_sentences", createSentences));
     sourceArguments.push_back(fmt::arg("class_methods", classMethods));
@@ -198,13 +207,27 @@ QString DBClass::getSourceFile() const
     return sourceOutput.c_str();
 }
 
+std::string DBClass::getAutoincrement(const std::shared_ptr<Statement> &shared) const
+{
+    std::string autoincrement;
+    for (const auto &item: m_builder->columns())
+    {
+        const auto column = std::dynamic_pointer_cast<core::db::SQLiteColumn>(item);
+        if (column->hasModifier(core::db::SQLiteModifier::isAutoIncrement))
+        {
+            autoincrement = QString("record.m_%1 = getLastInsertRowId();").arg(column->columnName()).toStdString();
+        }
+    }
+    return autoincrement;
+}
+
 std::string DBClass::getBindFields(const std::shared_ptr<Statement> &statement) const
 {
     auto getBindField = [&](const QString &statementName, const QString &columnName) -> std::string
     {
         auto name   = statementName.toStdString();
         auto column = columnName.toStdString();
-        return fmt::format("m_{}.bindValue(\":{}\", record->m_{});", name, column, column);
+        return fmt::format("m_{}.bindValue(\":{}\", record.m_{});", name, column, column);
     };
 
     switch (statement->type())
@@ -212,10 +235,19 @@ std::string DBClass::getBindFields(const std::shared_ptr<Statement> &statement) 
         case Statement::SQLTypes::create:
             break;
         case Statement::SQLTypes::insert:
-            return std::accumulate(m_builder->columns().begin(), m_builder->columns().end(), std::string{},
-                                   [&](const std::string &acc, const std::shared_ptr<core::db::Column> &column)
-                                   { return acc + getBindField(statement->name(), column->columnName()); });
+            return std::accumulate(
+                    m_builder->columns().begin(), m_builder->columns().end(), std::string{},
+                    [&](const std::string &acc, const std::shared_ptr<core::db::Column> &column)
+                    {
+                        if (column->hasModifier(static_cast<unsigned int>(core::db::SQLiteModifier::isAutoIncrement)) ||
+                            column->defaultValue() != std::nullopt)
+                        {
+                            return acc;
+                        }
+                        return acc + getBindField(statement->name(), column->columnName());
+                    });
         case Statement::SQLTypes::select:
+        case Statement::SQLTypes::count:
         case Statement::SQLTypes::update:
         case Statement::SQLTypes::deleteRow:
             auto list = statement->whereFields();
@@ -231,28 +263,28 @@ std::string DBClass::getRecordToFields(const std::shared_ptr<Statement> &stateme
     std::string result;
     for (const auto &item: m_builder->columns())
     {
-        auto column = std::dynamic_pointer_cast<core::db::SQLiteColumn>(item);
-        auto name   = column->columnName().toStdString();
+        const auto column = std::dynamic_pointer_cast<core::db::SQLiteColumn>(item);
+        auto       name   = column->columnName().toStdString();
 
         switch (column->columnType())
         {
             case core::db::SQLiteColumn::SQLiteDataType::INTEGER:
-                result += fmt::format("record->m_{} = sqlRecord.value(\"{}\").toLongLong();\n", name, name);
+                result += fmt::format("record.m_{} = sqlRecord.value(\"{}\").toLongLong();\n", name, name);
                 break;
             case core::db::SQLiteColumn::SQLiteDataType::REAL:
-                result += fmt::format("record->m_{} = sqlRecord.value(\"{}\").toDouble();\n", name, name);
+                result += fmt::format("record.m_{} = sqlRecord.value(\"{}\").toDouble();\n", name, name);
                 break;
             case core::db::SQLiteColumn::SQLiteDataType::BLOB:
-                result += fmt::format("record->m_{} = sqlRecord.value(\"{}\").toByteArray();\n", name, name);
+                result += fmt::format("record.m_{} = sqlRecord.value(\"{}\").toByteArray();\n", name, name);
                 break;
             case core::db::SQLiteColumn::SQLiteDataType::BOOLEAN:
-                result += fmt::format("record->m_{} = sqlRecord.value(\"{}\").toBool();\n", name, name);
+                result += fmt::format("record.m_{} = sqlRecord.value(\"{}\").toBool();\n", name, name);
                 break;
             case core::db::SQLiteColumn::SQLiteDataType::DATETIME:
-                result += fmt::format("record->m_{} = sqlRecord.value(\"{}\").toDateTime();\n", name, name);
+                result += fmt::format("record.m_{} = sqlRecord.value(\"{}\").toDateTime();\n", name, name);
                 break;
             default:
-                result += fmt::format("record->m_{} = sqlRecord.value(\"{}\").toString();\n", name, name);
+                result += fmt::format("record.m_{} = sqlRecord.value(\"{}\").toString();\n", name, name);
                 break;
         }
     }
@@ -261,15 +293,17 @@ std::string DBClass::getRecordToFields(const std::shared_ptr<Statement> &stateme
 
 QString DBClass::method(const std::shared_ptr<Statement> &statement) const
 {
-    const char       *sourceInput    = nullptr;
-    const std::string recordToFields = getRecordToFields(statement);
-    const auto        sqlQuery       = QString("m_%1").arg(statement->name());
-    const std::string recordToBind   = getBindFields(statement);
+    const char       *sourceInput          = nullptr;
+    const std::string recordToFields       = getRecordToFields(statement);
+    const auto        sqlQuery             = QString("m_%1").arg(statement->name());
+    const std::string recordToBind         = getBindFields(statement);
+    const std::string recoverAutoincrement = getAutoincrement(statement);
 
     fmt::dynamic_format_arg_store<fmt::format_context> sourceArguments;
     sourceArguments.push_back(fmt::arg("class_name", m_className.toStdString()));
     sourceArguments.push_back(fmt::arg("method_name", statement->name().toStdString()));
     sourceArguments.push_back(fmt::arg("record_to_bind", recordToBind));
+    sourceArguments.push_back(fmt::arg("recover_autoincrement", recoverAutoincrement));
     sourceArguments.push_back(fmt::arg("sql_query", sqlQuery.toStdString()));
     if (statement->type() == Statement::SQLTypes::select)
     {
@@ -287,7 +321,18 @@ QString DBClass::method(const std::shared_ptr<Statement> &statement) const
     }
     else
     {
-        sourceInput = getNoSelectMethod();
+        switch (statement->type())
+        {
+            case Statement::SQLTypes::count:
+                sourceInput = getSelectCount();
+                break;
+            case Statement::SQLTypes::insert:
+                sourceInput = getInsertMethod();
+                break;
+            default:
+                sourceInput = getNoSelectMethod();
+                break;
+        }
     }
     const auto sourceOutput = fmt::vformat(sourceInput, sourceArguments);
 
@@ -336,8 +381,8 @@ std::shared_ptr<core::db::Column> DBClass::columnFromJSON(const QJsonObject &col
     }
 
     // Create and return the Column shared pointer
-    return std::make_shared<core::db::SQLiteColumn>(columnName, type, modifiers, index, foreignKey, checkCondition,
-                                                    defaultValue, collate);
+    return std::make_shared<core::db::SQLiteColumn>(columnName, type, modifiers, index, defaultValue, foreignKey,
+                                                    checkCondition, collate);
 }
 
 std::shared_ptr<Statement> DBClass::statementFromJSON(const QJsonObject &statement) const

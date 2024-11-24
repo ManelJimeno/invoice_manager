@@ -36,6 +36,7 @@ public:
         insert, ///< Represents an INSERT SQL statement.
         create, ///< Represents a CREATE SQL statement.
         deleteRow, ///< Represents a DELETE SQL statement.
+        count, ///< Represents a SELECT COUNT SQL statement.
     };
 
     /**
@@ -127,6 +128,12 @@ public:
      * @return A QString representing the attributes of the SQL statement.
      */
     [[nodiscard]] QString attributes() const;
+
+    /**
+     * @brief Prepares the SQL statement for execution.
+     * @return A QString representing the prepared SQL query.
+     */
+    [[nodiscard]] QString prepare() const;
 
     /**
      * @brief Retrieves the size of the SQL statement in terms of the number of fields or components.
