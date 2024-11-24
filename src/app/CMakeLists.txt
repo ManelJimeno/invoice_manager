@@ -21,6 +21,14 @@ set(APP_SOURCES
     main.cpp
     qml/resources.qrc
     qml/main_window.qml
+    modules/module.cpp
+    modules/module.h
+    modules/security/security.cpp
+    modules/security/security.h
+    modules/security/groups.cpp
+    modules/security/groups.h
+    modules/security/users.cpp
+    modules/security/users.h
     modules/ui/main_window.cpp
     modules/ui/main_window.h
     invoice_manager_app.cpp
@@ -52,11 +60,23 @@ if(WIN32)
 endif()
 
 # List of dependencies
-find_package(Qt6 REQUIRED COMPONENTS Widgets Quick Qml)
-set(PROGRAM_DEPENDENCIES invoice_core Qt6::Gui Qt6::Widgets Qt6::Quick Qt6::Qml Qt6::Sql)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Quick Qml Concurrent QuickControls2)
+set(PROGRAM_DEPENDENCIES
+    invoice_core
+    Qt6::Gui
+    Qt6::Widgets
+    Qt6::Quick
+    Qt6::QuickControls2
+    Qt6::Qml
+    Qt6::Sql
+    Qt6::Concurrent)
 
 # Add executable target
 add_executable(${APPLICATION_NAME} ${APP_SOURCES})
+
+# Add table classes generation
+generate_json_sources(${APPLICATION_NAME} "${CMAKE_CURRENT_SOURCE_DIR}/modules/security/tables"
+                      "${CMAKE_CURRENT_SOURCE_DIR}/modules/security")
 
 # Link necessary dependencies
 target_link_libraries(${APPLICATION_NAME} PRIVATE ${PROGRAM_DEPENDENCIES})
