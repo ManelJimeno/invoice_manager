@@ -32,3 +32,15 @@ repos:
         language: system
         files: \.(c|cc|cxx|cpp|frag|glsl|h|hpp|hxx|ih)$
         args: ['--Werror', '-style=file', '-fallback-style=none', '-i']
+      - id: qmllint
+        name: qmllint
+        description: check QML syntax.
+        entry: @qml_lint@
+        language: system
+        files: \.(qml)$
+      - id: qmlformat
+        name: qmlformat
+        description: Format files with QMLFormat
+        entry: @qml_format@
+        language: system
+        files: \.(qml)$
