@@ -70,7 +70,7 @@ namespace core::db
 
         for (const auto &[indexName, fields]: indexes)
         {
-            QString query = "CREATE INDEX " + indexName + " ON " + m_tableName.toLower() + "(";
+            QString query = "CREATE INDEX IF NOT EXISTS " + indexName + " ON " + m_tableName.toLower() + "(";
             for (auto it = fields.begin(); it != fields.end(); ++it)
             {
                 query += (*it);
