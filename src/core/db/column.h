@@ -41,9 +41,9 @@ namespace core::db
          * @param type The data type of the column as a string.
          * @param modifiers Bitmask representing column modifiers (default is 0).
          * @param indexName Optional index name for indexing the column.
+         * @param defaultValue Optional default value for the column.
          * @param foreignKey Optional foreign key definition for referential integrity.
          * @param checkCondition Optional SQL condition for a CHECK constraint.
-         * @param defaultValue Optional default value for the column.
          */
         Column(QString name, QString type, const unsigned int modifiers = 0,
                std::optional<QString> indexName = std::nullopt, std::optional<QString> defaultValue = std::nullopt,
