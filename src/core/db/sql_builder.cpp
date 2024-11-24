@@ -14,28 +14,28 @@
 namespace core::db
 {
 
-void SQLBuilder::addColumn(std::shared_ptr<Column> column)
-{
-    m_columns.push_back(std::move(column));
-}
+    void SQLBuilder::addColumn(std::shared_ptr<Column> column)
+    {
+        m_columns.push_back(std::move(column));
+    }
 
-void SQLBuilder::setTableName(QString tableName)
-{
-    m_tableName = std::move(tableName);
-}
+    void SQLBuilder::setTableName(QString tableName)
+    {
+        m_tableName = std::move(tableName);
+    }
 
-QString SQLBuilder::name() const
-{
-    return m_tableName;
-}
+    QString SQLBuilder::name() const
+    {
+        return m_tableName;
+    }
 
-const QVector<std::shared_ptr<Column>>& SQLBuilder::columns() const
-{
-    return m_columns;
-}
+    const QVector<std::shared_ptr<Column>> &SQLBuilder::columns() const
+    {
+        return m_columns;
+    }
 
-SQLBuilder::SQLBuilder(QString dbType) : m_dbTypeName(std::move(dbType))
-{
-}
+    SQLBuilder::SQLBuilder(QString dbType) : m_dbTypeName(std::move(dbType))
+    {
+    }
 
 } // namespace core::db

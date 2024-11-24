@@ -8,8 +8,8 @@
  */
 
 #pragma once
-#include "dllexports.h"
 #include <QVector>
+#include "dllexports.h"
 
 /**
  * @class Statement
@@ -21,7 +21,7 @@
  */
 class Statement
 {
-  public:
+public:
     /**
      * @enum SQLTypes
      * @brief Represents the types of SQL statements that can be defined.
@@ -31,10 +31,10 @@ class Statement
      */
     enum class SQLTypes
     {
-        select,    ///< Represents a SELECT SQL statement.
-        update,    ///< Represents an UPDATE SQL statement.
-        insert,    ///< Represents an INSERT SQL statement.
-        create,    ///< Represents a CREATE SQL statement.
+        select, ///< Represents a SELECT SQL statement.
+        update, ///< Represents an UPDATE SQL statement.
+        insert, ///< Represents an INSERT SQL statement.
+        create, ///< Represents a CREATE SQL statement.
         deleteRow, ///< Represents a DELETE SQL statement.
     };
 
@@ -152,10 +152,10 @@ class Statement
      */
     [[nodiscard]] bool isUnique() const;
 
-  private:
-    QString m_name;                                   ///< The name of the SQL statement.
-    SQLTypes m_type;                                  ///< The type of the SQL statement (e.g., SELECT, INSERT).
-    QVector<QString> m_whereFields;                   ///< List of fields used in the WHERE clause.
+private:
+    QString                              m_name; ///< The name of the SQL statement.
+    SQLTypes                             m_type; ///< The type of the SQL statement (e.g., SELECT, INSERT).
+    QVector<QString>                     m_whereFields; ///< List of fields used in the WHERE clause.
     QVector<std::pair<QString, QString>> m_sqlVector; ///< SQL components for complex queries.
-    bool m_isUnique;                                  ///< Flag indicating whether the SQL statement is unique.
+    bool                                 m_isUnique; ///< Flag indicating whether the SQL statement is unique.
 };

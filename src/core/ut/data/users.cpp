@@ -9,22 +9,21 @@
  */
 
 #include "users.h"
-#include "db/db_exception.h"
 #include <QSqlError>
 #include <QSqlRecord>
+#include "db/db_exception.h"
 
-Users::Users(const QSqlDatabase& db)
-    : m_database(db), m_create(CREATE, m_database), m_insert(INSERT, m_database), m_update(UPDATE, m_database),
-      m_deleteRow(DELETE_ROW, m_database), m_selectPk(SELECT_PK, m_database),
-      m_findUserById(FIND_USER_BY_ID, m_database), m_findUserByUsername(FIND_USER_BY_USERNAME, m_database),
-      m_findUserByEmail(FIND_USER_BY_EMAIL, m_database)
+Users::Users(const QSqlDatabase &db) :
+    m_database(db), m_create(CREATE, m_database), m_insert(INSERT, m_database), m_update(UPDATE, m_database),
+    m_deleteRow(DELETE_ROW, m_database), m_selectPk(SELECT_PK, m_database), m_findUserById(FIND_USER_BY_ID, m_database),
+    m_findUserByUsername(FIND_USER_BY_USERNAME, m_database), m_findUserByEmail(FIND_USER_BY_EMAIL, m_database)
 {
 }
 
 void Users::create()
 {
     std::array<QString, 2> sentences = {CREATE, CREATE_INDEX_1};
-    for (auto& sentence : sentences)
+    for (auto &sentence: sentences)
     {
         if (!m_create.exec(sentence))
         {
@@ -33,7 +32,7 @@ void Users::create()
     }
 }
 
-void Users::insert(const std::shared_ptr<Record>& record)
+void Users::insert(const std::shared_ptr<Record> &record)
 {
     m_insert.bindValue(":id", record->m_id);
     m_insert.bindValue(":username", record->m_username);
@@ -45,7 +44,7 @@ void Users::insert(const std::shared_ptr<Record>& record)
     }
 }
 
-void Users::update(const std::shared_ptr<Record>& record)
+void Users::update(const std::shared_ptr<Record> &record)
 {
 
     if (!m_update.exec())
@@ -54,7 +53,7 @@ void Users::update(const std::shared_ptr<Record>& record)
     }
 }
 
-void Users::deleteRow(const std::shared_ptr<Record>& record)
+void Users::deleteRow(const std::shared_ptr<Record> &record)
 {
 
     if (!m_deleteRow.exec())
@@ -63,7 +62,7 @@ void Users::deleteRow(const std::shared_ptr<Record>& record)
     }
 }
 
-bool Users::selectPk(const std::shared_ptr<Record>& record)
+bool Users::selectPk(const std::shared_ptr<Record> &record)
 {
 
     if (!m_selectPk.exec())
@@ -73,9 +72,9 @@ bool Users::selectPk(const std::shared_ptr<Record>& record)
     if (m_selectPk.next())
     {
         const auto sqlRecord = m_selectPk.record();
-        record->m_id = sqlRecord.value("id").toLongLong();
-        record->m_username = sqlRecord.value("username").toString();
-        record->m_email = sqlRecord.value("email").toString();
+        record->m_id         = sqlRecord.value("id").toLongLong();
+        record->m_username   = sqlRecord.value("username").toString();
+        record->m_email      = sqlRecord.value("email").toString();
         record->m_created_at = sqlRecord.value("created_at").toDateTime();
 
         return true;
@@ -83,7 +82,7 @@ bool Users::selectPk(const std::shared_ptr<Record>& record)
     return false;
 }
 
-bool Users::findUserById(const std::shared_ptr<Record>& record)
+bool Users::findUserById(const std::shared_ptr<Record> &record)
 {
     m_findUserById.bindValue(":id", record->m_id);
     if (!m_findUserById.exec())
@@ -93,9 +92,9 @@ bool Users::findUserById(const std::shared_ptr<Record>& record)
     if (m_findUserById.next())
     {
         const auto sqlRecord = m_findUserById.record();
-        record->m_id = sqlRecord.value("id").toLongLong();
-        record->m_username = sqlRecord.value("username").toString();
-        record->m_email = sqlRecord.value("email").toString();
+        record->m_id         = sqlRecord.value("id").toLongLong();
+        record->m_username   = sqlRecord.value("username").toString();
+        record->m_email      = sqlRecord.value("email").toString();
         record->m_created_at = sqlRecord.value("created_at").toDateTime();
 
         return true;
@@ -103,7 +102,7 @@ bool Users::findUserById(const std::shared_ptr<Record>& record)
     return false;
 }
 
-bool Users::findUserByUsername(const std::shared_ptr<Record>& record)
+bool Users::findUserByUsername(const std::shared_ptr<Record> &record)
 {
     m_findUserByUsername.bindValue(":username", record->m_username);
     if (!m_findUserByUsername.exec())
@@ -113,9 +112,9 @@ bool Users::findUserByUsername(const std::shared_ptr<Record>& record)
     if (m_findUserByUsername.next())
     {
         const auto sqlRecord = m_findUserByUsername.record();
-        record->m_id = sqlRecord.value("id").toLongLong();
-        record->m_username = sqlRecord.value("username").toString();
-        record->m_email = sqlRecord.value("email").toString();
+        record->m_id         = sqlRecord.value("id").toLongLong();
+        record->m_username   = sqlRecord.value("username").toString();
+        record->m_email      = sqlRecord.value("email").toString();
         record->m_created_at = sqlRecord.value("created_at").toDateTime();
 
         return true;
@@ -123,7 +122,7 @@ bool Users::findUserByUsername(const std::shared_ptr<Record>& record)
     return false;
 }
 
-bool Users::findUserByEmail(const std::shared_ptr<Record>& record)
+bool Users::findUserByEmail(const std::shared_ptr<Record> &record)
 {
     m_findUserByEmail.bindValue(":email", record->m_email);
     if (!m_findUserByEmail.exec())
@@ -133,14 +132,14 @@ bool Users::findUserByEmail(const std::shared_ptr<Record>& record)
     return nextFindUserByEmail(record);
 }
 
-bool Users::nextFindUserByEmail(const std::shared_ptr<Record>& record)
+bool Users::nextFindUserByEmail(const std::shared_ptr<Record> &record)
 {
     if (m_findUserByEmail.next())
     {
         const auto sqlRecord = m_findUserByEmail.record();
-        record->m_id = sqlRecord.value("id").toLongLong();
-        record->m_username = sqlRecord.value("username").toString();
-        record->m_email = sqlRecord.value("email").toString();
+        record->m_id         = sqlRecord.value("id").toLongLong();
+        record->m_username   = sqlRecord.value("username").toString();
+        record->m_email      = sqlRecord.value("email").toString();
         record->m_created_at = sqlRecord.value("created_at").toDateTime();
 
         return true;

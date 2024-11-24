@@ -15,7 +15,7 @@
  * @brief MainWindow::MainWindow Constructs a MainWindow object.
  * @param parent A pointer to the parent QObject. Defaults to nullptr.
  */
-MainWindow::MainWindow(QObject* parent) : QObject(parent)
+MainWindow::MainWindow(QObject *parent) : QObject(parent)
 {
 }
 

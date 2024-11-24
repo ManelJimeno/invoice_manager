@@ -4,22 +4,23 @@
  * License: http://www.opensource.org/licenses/mit-license.php MIT
  */
 
-#include "db/dynamic_table.h"
-#include "db/sqlite/sqlite_column.h"
-#include "tools/tools.h"
 #include <QCoreApplication>
 #include <QFile>
 #include <QTimer>
 #include <gtest/gtest.h>
 #include <memory>
+#include "db/dynamic_table.h"
+#include "db/sqlite/sqlite_column.h"
+#include "tools/tools.h"
 
 using namespace core::db;
-QSqlDatabase db;
-std::unique_ptr<DynamicTable> table;
+QSqlDatabase                                                db;
+std::unique_ptr<DynamicTable>                               table;
 static const std::initializer_list<std::shared_ptr<Column>> settingsColumns = {
-    std::make_shared<SQLiteColumn>("name", SQLiteColumn::SQLiteDataType::TEXT,
-                                   SQLiteModifier::isNotNull | SQLiteModifier::isUnique | SQLiteModifier::isPrimaryKey),
-    std::make_shared<SQLiteColumn>("value", SQLiteColumn::SQLiteDataType::TEXT)};
+        std::make_shared<SQLiteColumn>("name", SQLiteColumn::SQLiteDataType::TEXT,
+                                       SQLiteModifier::isNotNull | SQLiteModifier::isUnique |
+                                               SQLiteModifier::isPrimaryKey),
+        std::make_shared<SQLiteColumn>("value", SQLiteColumn::SQLiteDataType::TEXT)};
 
 TEST(SQLiteTable, create_table_when_not_exists)
 {
@@ -69,23 +70,25 @@ TEST(SQLiteTable, deleteRow)
     EXPECT_EQ(records.size(), 1);
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     QCoreApplication app{argc, argv};
 
-    QTimer::singleShot(0, [&]() {
-        const auto dbPath = core::tools::getTemporaryFileName(".db");
-        db = QSqlDatabase::addDatabase("QSQLITE");
-        db.setDatabaseName(dbPath);
+    QTimer::singleShot(0,
+                       [&]()
+                       {
+                           const auto dbPath = core::tools::getTemporaryFileName(".db");
+                           db                = QSqlDatabase::addDatabase("QSQLITE");
+                           db.setDatabaseName(dbPath);
 
-        ASSERT_TRUE(db.open());
+                           ASSERT_TRUE(db.open());
 
-        ::testing::InitGoogleTest(&argc, argv);
-        const auto testResult = RUN_ALL_TESTS();
+                           ::testing::InitGoogleTest(&argc, argv);
+                           const auto testResult = RUN_ALL_TESTS();
 
-        QFile::remove(dbPath);
-        QCoreApplication::exit(testResult);
-    });
+                           QFile::remove(dbPath);
+                           QCoreApplication::exit(testResult);
+                       });
 
     return QCoreApplication::exec();
 }

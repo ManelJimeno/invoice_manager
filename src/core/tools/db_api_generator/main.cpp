@@ -7,16 +7,16 @@
  * @license MIT http://www.opensource.org/licenses/mit-license.php
  */
 
-#include "db_api_generator.h"
-#include "db_class.h"
 #include <QCommandLineParser>
 #include <QCoreApplication>
 #include <QDir>
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <exception.h>
+#include "db_api_generator.h"
+#include "db_class.h"
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     const QCoreApplication app(argc, argv);
     QCoreApplication::setApplicationName("Database API Generator");
@@ -57,16 +57,16 @@ int main(int argc, char* argv[])
         (!parser.isSet(jsonDirOption) && !parser.isSet(singleJsonOption)))
     {
         qCritical()
-            << "You must provide the database type, connection information, and either a JSON file or directory.\n";
+                << "You must provide the database type, connection information, and either a JSON file or directory.\n";
 
         parser.showHelp(EXIT_FAILURE);
     }
 
     // Retrieve options
-    const QString dbType = parser.value(dbTypeOption);
-    const QString connectionInfo = parser.value(connectionInfoOption);
+    const QString dbType          = parser.value(dbTypeOption);
+    const QString connectionInfo  = parser.value(connectionInfoOption);
     const QString outputDirectory = parser.value(outputFolder);
-    const bool verbose = parser.isSet(verboseOption);
+    const bool    verbose         = parser.isSet(verboseOption);
 
     // Open the database
     auto db = QSqlDatabase::addDatabase(dbType);
@@ -88,8 +88,8 @@ int main(int argc, char* argv[])
             // If a JSON directory is provided
             const QDir jsonDir(parser.value(jsonDirOption));
 
-            for (QStringList jsonFiles = jsonDir.entryList(QStringList() << "*.json", QDir::Files);
-                 const QString& jsonFile : jsonFiles)
+            for (QStringList    jsonFiles = jsonDir.entryList(QStringList() << "*.json", QDir::Files);
+                 const QString &jsonFile: jsonFiles)
             {
                 QString filePath = jsonDir.filePath(jsonFile);
                 if (verbose)
@@ -110,19 +110,19 @@ int main(int argc, char* argv[])
             generator.generateClass(jsonFile, outputDirectory);
         }
     }
-    catch (const core::FileNotOpen& e)
+    catch (const core::FileNotOpen &e)
     {
         qCritical() << "File not open: " << e.what();
     }
-    catch (const InvalidJSON& e)
+    catch (const InvalidJSON &e)
     {
         qCritical() << "Invalid JSON: " << e.what();
     }
-    catch (const core::db::DBManagerException& e)
+    catch (const core::db::DBManagerException &e)
     {
         qCritical() << e.what();
     }
-    catch (const std::exception& e)
+    catch (const std::exception &e)
     {
         qCritical() << e.what();
     }

@@ -7,7 +7,7 @@
  * @license MIT http://www.opensource.org/licenses/mit-license.php
  */
 
-constexpr const char* getHeaderTemplate()
+constexpr const char *getHeaderTemplate()
 {
     return R"(/**
  * @file {table_name}.h
@@ -46,7 +46,7 @@ class {class_name}
 )";
 }
 
-constexpr const char* getSourceTemplate()
+constexpr const char *getSourceTemplate()
 {
     return R"(/**
  * @file {table_name}.cpp
@@ -85,7 +85,7 @@ void {class_name}::create()
 )";
 }
 
-constexpr const char* getNoSelectMethod()
+constexpr const char *getNoSelectMethod()
 {
     return R"(void {class_name}::{method_name}(const std::shared_ptr<Record>& record)
 {{
@@ -99,7 +99,7 @@ constexpr const char* getNoSelectMethod()
 )";
 }
 
-constexpr const char* getUniqueSelectMethod()
+constexpr const char *getUniqueSelectMethod()
 {
     return R"(bool {class_name}::{method_name}(const std::shared_ptr<Record>& record)
 {{
@@ -120,7 +120,7 @@ constexpr const char* getUniqueSelectMethod()
 )";
 }
 
-constexpr const char* getSelectMethod()
+constexpr const char *getSelectMethod()
 {
     return R"(bool {class_name}::{method_name}(const std::shared_ptr<Record>& record)
 {{

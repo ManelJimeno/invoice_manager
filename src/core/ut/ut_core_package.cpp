@@ -4,8 +4,8 @@
  * License: http://www.opensource.org/licenses/mit-license.php MIT
  */
 
-#include "version.h"
 #include <gtest/gtest.h>
+#include "version.h"
 
 TEST(CorePackage, version)
 {

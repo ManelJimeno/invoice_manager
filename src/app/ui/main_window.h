@@ -19,19 +19,19 @@ class MainWindow : public QObject
 {
     Q_OBJECT
 
-  public:
+public:
     /**
      * @brief Constructor for MainWindow class.
      * @param parent The parent object.
      */
-    explicit MainWindow(QObject* parent = nullptr);
+    explicit MainWindow(QObject *parent = nullptr);
 
     /**
      * @brief Destructor for MainWindow class.
      */
     ~MainWindow() override;
 
-  public slots:
+public slots:
     /**
      * @brief Shows the About dialog for the application.
      */

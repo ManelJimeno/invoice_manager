@@ -9,11 +9,11 @@
 
 #pragma once
 
-#include "settings/sqlite_settings.h"
-#include "ui/main_window.h"
 #include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include "settings/sqlite_settings.h"
+#include "ui/main_window.h"
 
 constexpr auto APP_NAME = "InvoiceManager";
 
@@ -21,19 +21,19 @@ class InvoiceManagerApp final : public QApplication
 {
     Q_OBJECT
 
-  public:
+public:
     /**
      * @brief Constructor for InvoiceManagerApp.
      * @param argc Command line argument count.
      * @param argv Command line arguments.
      */
-    InvoiceManagerApp(int& argc, char** argv);
+    InvoiceManagerApp(int &argc, char **argv);
 
     /**
      * @brief Returns the singleton instance of the QSqlDatabase.
      * @return QSqlDatabase instance.
      */
-    static QSqlDatabase& getDatabase();
+    static QSqlDatabase &getDatabase();
 
     /**
      * @brief main loop
@@ -41,12 +41,12 @@ class InvoiceManagerApp final : public QApplication
      */
     [[nodiscard]] int loop();
 
-  private:
-    MainWindow m_mainWindow;                   ///< Main window of the application.
-    QQmlApplicationEngine m_engine;            ///< QML engine for loading QML UI.
+private:
+    MainWindow                     m_mainWindow; ///< Main window of the application.
+    QQmlApplicationEngine          m_engine; ///< QML engine for loading QML UI.
     core::settings::SQLiteSettings m_settings; ///< Settings of the app.
 
     // Prevent copy-construction and assignment
-    InvoiceManagerApp(const InvoiceManagerApp&) = delete;
-    InvoiceManagerApp& operator=(const InvoiceManagerApp&) = delete;
+    InvoiceManagerApp(const InvoiceManagerApp &)            = delete;
+    InvoiceManagerApp &operator=(const InvoiceManagerApp &) = delete;
 };

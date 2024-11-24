@@ -12,13 +12,13 @@
 namespace core
 {
 
-Exception::Exception(QString msg) : m_msg(std::move(msg))
-{
-}
+    Exception::Exception(QString msg) : m_msg(std::move(msg))
+    {
+    }
 
-char const* Exception::what() const noexcept
-{
-    return m_msg.toUtf8().constData();
-}
+    char const *Exception::what() const noexcept
+    {
+        return m_msg.toUtf8().constData();
+    }
 
 } // namespace core

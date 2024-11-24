@@ -4,13 +4,13 @@
  * License: http://www.opensource.org/licenses/mit-license.php MIT
  */
 
-#include "settings/sqlite_settings.h"
 #include <QCoreApplication>
 #include <QDir>
 #include <QStandardPaths>
 #include <QTimer>
 #include <QUuid>
 #include <gtest/gtest.h>
+#include "settings/sqlite_settings.h"
 
 QSqlDatabase db;
 
@@ -34,25 +34,28 @@ TEST(SQLiteSettings, get_value)
     EXPECT_EQ(settings["value_2"].toInt(), 3);
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     QCoreApplication app{argc, argv};
 
-    QTimer::singleShot(0, [&]() {
-        const auto tempDir = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
-        const auto randomDbName = QUuid::createUuid().toString().remove("{").remove("}").replace("-", "_") + ".db";
-        const auto dbPath = QDir(tempDir).filePath(randomDbName);
-        db = QSqlDatabase::addDatabase("QSQLITE");
-        db.setDatabaseName(dbPath);
+    QTimer::singleShot(0,
+                       [&]()
+                       {
+                           const auto tempDir = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
+                           const auto randomDbName =
+                                   QUuid::createUuid().toString().remove("{").remove("}").replace("-", "_") + ".db";
+                           const auto dbPath = QDir(tempDir).filePath(randomDbName);
+                           db                = QSqlDatabase::addDatabase("QSQLITE");
+                           db.setDatabaseName(dbPath);
 
-        ASSERT_TRUE(db.open());
+                           ASSERT_TRUE(db.open());
 
-        ::testing::InitGoogleTest(&argc, argv);
-        const auto testResult = RUN_ALL_TESTS();
+                           ::testing::InitGoogleTest(&argc, argv);
+                           const auto testResult = RUN_ALL_TESTS();
 
-        QFile::remove(dbPath);
-        QCoreApplication::exit(testResult);
-    });
+                           QFile::remove(dbPath);
+                           QCoreApplication::exit(testResult);
+                       });
 
     return QCoreApplication::exec();
 }

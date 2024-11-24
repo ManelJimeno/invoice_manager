@@ -18,20 +18,20 @@
 namespace core::db
 {
 
-/**
- * @class SQLError
- * @brief Represents a database-specific error related to SQL operations.
- *
- * The SQLError class is a specialized exception type that is thrown when an SQL-related
- * error occurs within the database module. It inherits from the general Exception class,
- * which handles core exception functionality.
- *
- * SQLError is marked as final to prevent further inheritance, ensuring that SQL-related
- * exceptions are uniformly handled through this class.
- */
-class SQLError final : public Exception
-{
-    using Exception::Exception; ///< Inherit constructors from Exception for standard error message handling.
-};
+    /**
+     * @class SQLError
+     * @brief Represents a database-specific error related to SQL operations.
+     *
+     * The SQLError class is a specialized exception type that is thrown when an SQL-related
+     * error occurs within the database module. It inherits from the general Exception class,
+     * which handles core exception functionality.
+     *
+     * SQLError is marked as final to prevent further inheritance, ensuring that SQL-related
+     * exceptions are uniformly handled through this class.
+     */
+    class SQLError final : public Exception
+    {
+        using Exception::Exception; ///< Inherit constructors from Exception for standard error message handling.
+    };
 
 }; // namespace core::db
