@@ -80,12 +80,12 @@ namespace core::db
          * @param collate Optional collation sequence for the column.
          */
         SQLiteColumn(QString name, const SQLiteDataType type,
-                     QFlags<SQLiteModifiers::enum_type> modifiers      = SQLiteModifier::None,
-                     std::optional<QString>             indexName      = std::nullopt,
-                     std::optional<QString>             defaultValue   = std::nullopt,
-                     std::optional<QString>             foreignKey     = std::nullopt,
-                     std::optional<QString>             checkCondition = std::nullopt,
-                     std::optional<QString>             collate        = std::nullopt) :
+                     const QFlags<SQLiteModifiers::enum_type> modifiers      = SQLiteModifier::None,
+                     std::optional<QString>                   indexName      = std::nullopt,
+                     std::optional<QString>                   defaultValue   = std::nullopt,
+                     std::optional<QString>                   foreignKey     = std::nullopt,
+                     std::optional<QString>                   checkCondition = std::nullopt,
+                     std::optional<QString>                   collate        = std::nullopt) :
             Column(std::move(name), toSQLiteType(type), static_cast<unsigned int>(modifiers), std::move(indexName),
                    std::move(defaultValue), std::move(foreignKey), std::move(checkCondition)),
             m_collate(std::move(collate)), m_columnType(type)
