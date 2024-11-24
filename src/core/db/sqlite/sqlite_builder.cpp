@@ -44,7 +44,8 @@ namespace core::db
                 {
                     foreignKeyClause += ", ";
                 }
-                foreignKeyClause += QString("FOREIGN KEY (%1) REFERENCES").arg((*it)->foreignKey().value());
+                foreignKeyClause +=
+                        QString("FOREIGN KEY (%1) REFERENCES %2").arg((*it)->columnName(), (*it)->foreignKey().value());
             }
         }
         if (!foreignKeyClause.isEmpty())
