@@ -22,7 +22,7 @@
  */
 class DBAPIGenerator
 {
-  public:
+public:
     /**
      * @brief Constructor for the DBAPIGenerator class.
      *
@@ -32,7 +32,7 @@ class DBAPIGenerator
      * @param database The database (QSqlDatabase) used to fetch table information.
      * @param verbose Enables or disables verbose output. Defaults to false.
      */
-    explicit DBAPIGenerator(const QSqlDatabase& database, bool verbose = false);
+    explicit DBAPIGenerator(const QSqlDatabase &database, bool verbose = false);
 
     /**
      * @brief Parses a JSON file to extract table definitions and generate a C++ class.
@@ -44,9 +44,9 @@ class DBAPIGenerator
      * @param outputDirectory The directory where the generated C++ classes will be placed.
      *                        Defaults to the current directory (".").
      */
-    void generateClass(const QString& filePath, const QString& outputDirectory = ".") const;
+    void generateClass(const QString &filePath, const QString &outputDirectory = ".") const;
 
-  private:
-    bool m_verbose;          ///< Flag to enable verbose output during the generation process.
+private:
+    bool         m_verbose; ///< Flag to enable verbose output during the generation process.
     QSqlDatabase m_database; ///< The database connection used to generate the classes.
 };

@@ -1,0 +1,57 @@
+{
+    "table": {
+        "name": "groups",
+        "database_types": [
+            "SQLITE"
+        ],
+        "columns": [
+            {
+                "name": "id",
+                "type": "INTEGER",
+                "index": "idx_groups_id",
+                "modifiers": [
+                    "is_primary_key",
+                    "is_auto_increment",
+                    "is_unique"
+                ]
+            },
+            {
+                "name": "groupName",
+                "index": "idx_groups_groupName",
+                "type": "TEXT",
+                "modifiers": [
+                    "is_unique"
+                ]
+            },
+            {
+                "name": "description",
+                "type": "TEXT"
+            },
+            {
+                "name": "modified_by",
+                "type": "TEXT"
+            },
+            {
+                "name": "modified_at",
+                "type": "DATETIME",
+                "defaultValue": "CURRENT_TIMESTAMP"
+            },
+            {
+                "name": "created_by",
+                "type": "TEXT"
+            },
+            {
+                "name": "created_at",
+                "type": "DATETIME",
+                "defaultValue": "CURRENT_TIMESTAMP"
+            }
+        ]
+    },
+    "statements": [
+        {
+            "name": "findUserByUsername",
+            "type": "select",
+            "where": "groupName = :groupName"
+        }
+    ]
+}

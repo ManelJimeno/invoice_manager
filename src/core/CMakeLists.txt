@@ -45,7 +45,9 @@ set(INVOICE_CORE_SOURCES
     db/sql_builder.cpp
     db/sql_builder.h
     db/db_manager.cpp
-    db/db_manager.h)
+    db/db_manager.h
+    db/sqlite/sqlite_db_api.cpp
+    db/sqlite/sqlite_db_api.h)
 
 # Create the core object library target
 add_library(${INVOICE_CORE_OBJ_LIBRARY} OBJECT ${INVOICE_CORE_SOURCES})

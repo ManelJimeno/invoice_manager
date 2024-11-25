@@ -8,32 +8,32 @@
  */
 
 #include "factory.h"
+#include <memory>
 #include "db/sqlite/sqlite_builder.h"
 #include "db_manager.h"
-#include <memory>
 
 namespace core::db
 {
 
-Factory& Factory::factory()
-{
-    static Factory factory;
-    return factory;
-}
-
-std::shared_ptr<SQLBuilder> Factory::builder(const QString& dbType)
-{
-    if (!DBManager::allowTypes().contains(dbType))
+    Factory &Factory::factory()
     {
-        throw RuntimeError("This type of database is not registered.");
+        static Factory factory;
+        return factory;
     }
-    if (dbType == DBManager::QSQLITE)
-    {
-        return std::make_shared<SQLiteBuilder>();
-    }
-    return nullptr;
-}
 
-Factory::Factory() = default;
+    std::shared_ptr<SQLBuilder> Factory::builder(const QString &dbType)
+    {
+        if (!DBManager::allowTypes().contains(dbType))
+        {
+            throw RuntimeError("This type of database is not registered.");
+        }
+        if (dbType == DBManager::QSQLITE)
+        {
+            return std::make_shared<SQLiteBuilder>();
+        }
+        return nullptr;
+    }
+
+    Factory::Factory() = default;
 
 } // namespace core::db

@@ -2,6 +2,9 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 
 ApplicationWindow {
+    id: qmlMainWindow
+
+    required property Window mainWindow
     property string statusBarText: "Ready"
 
     height: 768
@@ -20,7 +23,7 @@ ApplicationWindow {
             anchors.left: parent.left
             anchors.leftMargin: 10
             anchors.verticalCenter: parent.verticalCenter
-            text: statusBarText
+            text: qmlMainWindow.statusBarText
         }
     }
     menuBar: MenuBar {
@@ -37,9 +40,9 @@ ApplicationWindow {
                 HoverHandler {
                     onHoveredChanged: {
                         if (hovered) {
-                            statusBarText = "Exit the application";
+                            qmlMainWindow.statusBarText = "Exit the application";
                         } else {
-                            statusBarText = "Ready";
+                            qmlMainWindow.statusBarText = "Ready";
                         }
                     }
                 }
@@ -50,17 +53,19 @@ ApplicationWindow {
 
             MenuItem {
                 text: "About this..."
+
+                onTriggered: {
+                    qmlMainWindow.mainWindow.showAboutDialog();
+                }
+
                 HoverHandler {
                     onHoveredChanged: {
                         if (hovered) {
-                            statusBarText = "Learn more about the application";
+                            qmlMainWindow.statusBarText = "Learn more about the application";
                         } else {
-                            statusBarText = "Ready";
+                            qmlMainWindow.statusBarText = "Ready";
                         }
                     }
-                }
-                onTriggered: {
-                    mainWindow.showAboutDialog();
                 }
             }
         }

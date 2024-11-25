@@ -15,6 +15,18 @@ function(setup_qt_deployment application_name)
         set(qt_BIN_DIRS ${qt_BIN_DIRS_RELEASE})
     endif()
 
+    set(qml_lint "${qt_BIN_DIRS}/qmllint")
+    set(qml_format "${qt_BIN_DIRS}/qmlformat")
+
+    if(WIN32)
+        set(qml_lint "${qml_lint}.exe")
+        string(REPLACE "/" "\\\\" qml_lint "${qml_lint}")
+        set(qml_format "${qml_format}.exe")
+        string(REPLACE "/" "\\\\" qml_format "${qml_format}")
+    endif()
+
+    configure_file("${CMAKE_SOURCE_DIR}/.pre-commit-config.yaml.in" "${CMAKE_SOURCE_DIR}/.pre-commit-config.yaml" @ONLY)
+
     if(WIN32)
         add_custom_command(
             TARGET ${application_name}

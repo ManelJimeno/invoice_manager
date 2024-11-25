@@ -11,39 +11,46 @@
 namespace core::db
 {
 
-const QSet<QString> DBManager::m_allowedDBTypes = {DBManager::QSQLITE};
+    const QSet<QString> DBManager::m_allowedDBTypes = {DBManager::QSQLITE};
 
-DBManager::DBManager() = default;
+    DBManager::DBManager() = default;
 
-DBManager& DBManager::manager()
-{
-    static DBManager manager;
-    return manager;
-}
-
-QSqlDatabase DBManager::connect(const QString& dbType, const QString& connectionInfo,
-                                const QString& connectionName) const
-{
-    if (!m_allowedDBTypes.contains(dbType))
+    DBManager &DBManager::manager()
     {
-        throw DBManagerException("This type of database is not registered.");
+        static DBManager manager;
+        return manager;
     }
-    m_connections[connectionName] = QSqlDatabase::addDatabase(dbType);
-    if (dbType.compare(DBManager::QSQLITE) == 0)
+
+    QSqlDatabase DBManager::connect(const QString &dbType, const QString &connectionInfo, const QString &connectionName)
     {
-        m_connections[connectionName].setDatabaseName(connectionInfo);
+        if (!m_allowedDBTypes.contains(dbType))
+        {
+            throw DBManagerException("This type of database is not registered.");
+        }
+        if (connectionName == "main")
+        {
+            m_main                        = QSqlDatabase::addDatabase(dbType);
+            m_connections[connectionName] = m_main;
+        }
+        else
+        {
+            m_connections[connectionName] = QSqlDatabase::addDatabase(dbType);
+        }
+        if (dbType.compare(DBManager::QSQLITE) == 0)
+        {
+            m_connections[connectionName].setDatabaseName(connectionInfo);
+        }
+        return m_connections[connectionName];
     }
-    return m_connections[connectionName];
-}
 
-QSqlDatabase& DBManager::connection(const QString& connectionName)
-{
-    return m_connections[connectionName];
-}
+    QSqlDatabase &DBManager::connection(const QString &connectionName)
+    {
+        return m_connections[connectionName];
+    }
 
-const QSet<QString>& DBManager::allowTypes()
-{
-    return m_allowedDBTypes;
-}
+    const QSet<QString> &DBManager::allowTypes()
+    {
+        return m_allowedDBTypes;
+    }
 
 } // namespace core::db

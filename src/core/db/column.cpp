@@ -12,49 +12,49 @@
 namespace core::db
 {
 
-bool Column::hasModifier(const unsigned int modifier) const
-{
-    return (m_modifiers & modifier) != 0;
-}
+    bool Column::hasModifier(const unsigned int modifier) const
+    {
+        return (m_modifiers & modifier) != 0;
+    }
 
-std::optional<QString> Column::indexName() const
-{
-    return m_indexName;
-}
+    std::optional<QString> Column::indexName() const
+    {
+        return m_indexName;
+    }
 
-std::optional<QString> Column::foreignKey() const
-{
-    return m_foreignKey;
-}
+    std::optional<QString> Column::foreignKey() const
+    {
+        return m_foreignKey;
+    }
 
-std::optional<QString> Column::defaultValue() const
-{
-    return m_defaultValue;
-}
+    std::optional<QString> Column::defaultValue() const
+    {
+        return m_defaultValue;
+    }
 
-std::optional<QString> Column::customConstraint() const
-{
-    return m_customConstraint;
-}
+    std::optional<QString> Column::customConstraint() const
+    {
+        return m_customConstraint;
+    }
 
-void Column::setIndexName(const QString& index)
-{
-    m_indexName = index;
-}
+    void Column::setIndexName(const QString &index)
+    {
+        m_indexName = index;
+    }
 
-void Column::setForeignKey(const QString& foreignKey)
-{
-    m_foreignKey = foreignKey;
-}
+    void Column::setForeignKey(const QString &foreignKey)
+    {
+        m_foreignKey = foreignKey;
+    }
 
-void Column::setDefaultValue(const QString& value)
-{
-    m_defaultValue = value;
-}
+    void Column::setDefaultValue(const QString &value)
+    {
+        m_defaultValue = value;
+    }
 
-void Column::setCustomConstraint(const QString& constraint)
-{
-    m_customConstraint = constraint;
-}
+    void Column::setCustomConstraint(const QString &constraint)
+    {
+        m_customConstraint = constraint;
+    }
 
 } // namespace core::db

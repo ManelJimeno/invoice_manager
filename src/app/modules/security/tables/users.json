@@ -1,0 +1,75 @@
+{
+    "table": {
+        "name": "users",
+        "database_types": [
+            "SQLITE"
+        ],
+        "columns": [
+            {
+                "name": "id",
+                "type": "INTEGER",
+                "modifiers": [
+                    "is_primary_key",
+                    "is_auto_increment",
+                    "is_unique"
+                ]
+            },
+            {
+                "name": "username",
+                "index": "idx_users_username",
+                "type": "TEXT",
+                "modifiers": [
+                    "is_unique"
+                ]
+            },
+            {
+                "name": "password",
+                "type": "TEXT"
+            },
+            {
+                "name": "email",
+                "type": "TEXT"
+            },
+            {
+                "name": "groupId",
+                "type": "INTEGER",
+                "foreign": "groups(Id)"
+            },
+            {
+                "name": "modified_by",
+                "type": "TEXT"
+            },
+            {
+                "name": "modified_at",
+                "type": "DATETIME",
+                "defaultValue": "CURRENT_TIMESTAMP"
+            },
+            {
+                "name": "created_by",
+                "type": "TEXT"
+            },
+            {
+                "name": "created_at",
+                "type": "DATETIME",
+                "defaultValue": "CURRENT_TIMESTAMP"
+            }
+        ]
+    },
+    "statements": [
+        {
+            "name": "findUserByUsername",
+            "type": "select",
+            "where": "username = :username"
+        },
+        {
+            "name": "findUserByUsernamePassword",
+            "type": "select",
+            "where": "username = :username and password = :password"
+        },
+        {
+            "name": "findUserByEmail",
+            "type": "select",
+            "where": "email = :email"
+        }
+    ]
+}

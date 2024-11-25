@@ -7,9 +7,9 @@
 
 namespace core::settings
 {
-QVariant& Settings::operator[](const QString& key)
-{
-    return m_values[key];
-}
+    QVariant &Settings::operator[](const QString &key)
+    {
+        return m_values[key];
+    }
 
 }; // namespace core::settings

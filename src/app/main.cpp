@@ -15,7 +15,7 @@
  * @param argv An array of command-line arguments.
  * @return The exit status of the application.
  */
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     InvoiceManagerApp app(argc, argv);
     return app.loop();

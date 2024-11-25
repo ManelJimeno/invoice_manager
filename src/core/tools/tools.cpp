@@ -17,129 +17,129 @@
 namespace core::tools
 {
 
-QString getTemporaryFileName(const QString& extension)
-{
-    const auto tempDir = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
-    const auto randomDbName = QUuid::createUuid().toString().remove("{").remove("}").replace("-", "_") + extension;
-    return QDir(tempDir).filePath(randomDbName);
-}
-
-QString capitalizeFirstLetter(const QString& input)
-{
-    if (input.isEmpty())
+    QString getTemporaryFileName(const QString &extension)
     {
-        return input;
+        const auto tempDir      = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
+        const auto randomDbName = QUuid::createUuid().toString().remove("{").remove("}").replace("-", "_") + extension;
+        return QDir(tempDir).filePath(randomDbName);
     }
-    return input.left(1).toUpper() + input.mid(1);
-}
 
-QString toSnake(const QString& input, const bool lower)
-{
-    QString result;
-    for (int i = 0; i < input.size(); ++i)
+    QString capitalizeFirstLetter(const QString &input)
     {
-        QChar ch = input[i];
-        if (ch.isUpper() && i > 0)
+        if (input.isEmpty())
         {
-            result += '_';
+            return input;
         }
-        if (lower)
+        return input.left(1).toUpper() + input.mid(1);
+    }
+
+    QString toSnake(const QString &input, const bool lower)
+    {
+        QString result;
+        for (int i = 0; i < input.size(); ++i)
         {
-            result += ch.toLower();
+            QChar ch = input[i];
+            if (ch.isUpper() && i > 0)
+            {
+                result += '_';
+            }
+            if (lower)
+            {
+                result += ch.toLower();
+            }
+            else
+            {
+                result += ch.toUpper();
+            }
         }
-        else
+        return result;
+    }
+
+    QString upperSnake(const QString &input)
+    {
+        return toSnake(input, false);
+    }
+
+    QString lowerSnake(const QString &input)
+    {
+        return toSnake(input, true);
+    }
+
+    void saveStringToFile(const QString &text, const QString &filePath)
+    {
+        QFile file(filePath);
+
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
         {
-            result += ch.toUpper();
+            throw core::FileNotOpen(file.errorString());
         }
-    }
-    return result;
-}
 
-QString upperSnake(const QString& input)
-{
-    return toSnake(input, false);
-}
+        QTextStream out(&file);
+        out << text;
 
-QString lowerSnake(const QString& input)
-{
-    return toSnake(input, true);
-}
-
-void saveStringToFile(const QString& text, const QString& filePath)
-{
-    QFile file(filePath);
-
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-    {
-        throw core::FileNotOpen(file.errorString());
+        file.close();
     }
 
-    QTextStream out(&file);
-    out << text;
-
-    file.close();
-}
-
-QVector<QString> extractBoundFields(const QString& query)
-{
-    static const QRegularExpression re(R"(WHERE\s+(.*?)(?=\s*(GROUP|ORDER|LIMIT|$)))",
-                                       QRegularExpression::CaseInsensitiveOption);
-    static const QRegularExpression paramRe(R"(:\b(\w+)\b)");
-
-    QVector<QString> boundFields;
-
-    QRegularExpressionMatch match = re.match(query);
-    if (match.hasMatch())
+    QVector<QString> extractBoundFields(const QString &query)
     {
-        const QString whereClause = match.captured(1);
+        static const QRegularExpression re(R"(WHERE\s+(.*?)(?=\s*(GROUP|ORDER|LIMIT|$)))",
+                                           QRegularExpression::CaseInsensitiveOption);
+        static const QRegularExpression paramRe(R"(:\b(\w+)\b)");
 
-        QRegularExpressionMatchIterator it = paramRe.globalMatch(whereClause);
-        while (it.hasNext())
+        QVector<QString> boundFields;
+
+        QRegularExpressionMatch match = re.match(query);
+        if (match.hasMatch())
         {
-            QRegularExpressionMatch paramMatch = it.next();
-            boundFields << paramMatch.captured(1);
+            const QString whereClause = match.captured(1);
+
+            QRegularExpressionMatchIterator it = paramRe.globalMatch(whereClause);
+            while (it.hasNext())
+            {
+                QRegularExpressionMatch paramMatch = it.next();
+                boundFields << paramMatch.captured(1);
+            }
         }
+
+        return boundFields;
     }
 
-    return boundFields;
-}
-
-bool areFilesEqual(const QString& filePath1, const QString& filePath2)
-{
-    QFile file1(filePath1);
-    QFile file2(filePath2);
-
-    // Check if both files can be opened
-    if (!file1.open(QIODevice::ReadOnly))
+    bool areFilesEqual(const QString &filePath1, const QString &filePath2)
     {
-        qWarning() << "Could not open file:" << filePath1;
-        return false;
-    }
-    if (!file2.open(QIODevice::ReadOnly))
-    {
-        qWarning() << "Could not open file:" << filePath2;
-        return false;
-    }
+        QFile file1(filePath1);
+        QFile file2(filePath2);
 
-    // Compare file sizes
-    if (file1.size() != file2.size())
-    {
-        return false;
-    }
-
-    // Compare content in chunks
-    while (!file1.atEnd())
-    {
-        QByteArray chunk1 = file1.read(4096); // Read in 4 KB chunks
-        QByteArray chunk2 = file2.read(4096);
-
-        if (chunk1 != chunk2)
+        // Check if both files can be opened
+        if (!file1.open(QIODevice::ReadOnly))
         {
-            return false; // Differences found
+            qWarning() << "Could not open file:" << filePath1;
+            return false;
         }
-    }
+        if (!file2.open(QIODevice::ReadOnly))
+        {
+            qWarning() << "Could not open file:" << filePath2;
+            return false;
+        }
 
-    return true; // Files are identical
-}
+        // Compare file sizes
+        if (file1.size() != file2.size())
+        {
+            return false;
+        }
+
+        // Compare content in chunks
+        while (!file1.atEnd())
+        {
+            QByteArray chunk1 = file1.read(4096); // Read in 4 KB chunks
+            QByteArray chunk2 = file2.read(4096);
+
+            if (chunk1 != chunk2)
+            {
+                return false; // Differences found
+            }
+        }
+
+        return true; // Files are identical
+    }
 
 } // namespace core::tools

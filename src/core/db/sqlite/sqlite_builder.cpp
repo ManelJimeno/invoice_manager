@@ -15,152 +15,190 @@
 namespace core::db
 {
 
-std::optional<std::shared_ptr<core::db::Column>> SQLiteBuilder::column(const QString& columnName)
-{
-    for (const auto& column : m_columns)
+    std::optional<std::shared_ptr<core::db::Column>> SQLiteBuilder::column(const QString &columnName)
     {
-        if (column && column->columnName() == columnName)
+        for (const auto &column: m_columns)
         {
-            return column;
-        }
-    }
-    return std::nullopt;
-}
-
-QString SQLiteBuilder::createTable() const
-{
-    QString foreignKeyClause;
-    QString query = "CREATE TABLE IF NOT EXISTS " + name() + " ( ";
-    for (auto it = m_columns.begin(); it != m_columns.end(); ++it)
-    {
-        query += (*it)->columnDefinition();
-        if (std::next(it) != m_columns.end())
-        {
-            query += ", ";
-        }
-        if ((*it)->foreignKey().has_value())
-        {
-            if (!foreignKeyClause.isEmpty())
+            if (column && column->columnName() == columnName)
             {
-                foreignKeyClause += ", ";
+                return column;
             }
-            foreignKeyClause += QString("FOREIGN KEY (%1) REFERENCES").arg((*it)->foreignKey().value());
         }
-    }
-    if (!foreignKeyClause.isEmpty())
-    {
-        query += ", " + foreignKeyClause;
-    }
-    query += " );";
-    return query;
-}
-
-QVector<QString> SQLiteBuilder::createIndexes() const
-{
-    QVector<QString> queries;
-    std::map<QString, QVector<QString>> indexes;
-    for (const auto& column : m_columns)
-    {
-        if (column->indexName().has_value())
-        {
-            indexes[column->indexName().value()].push_back(column->columnName());
-        }
+        return std::nullopt;
     }
 
-    for (const auto& [indexName, fields] : indexes)
+    QString SQLiteBuilder::createTable() const
     {
-        QString query = "CREATE INDEX " + indexName + " ON " + m_tableName.toLower() + "(";
-        for (auto it = fields.begin(); it != fields.end(); ++it)
+        QString foreignKeyClause;
+        QString query = "CREATE TABLE IF NOT EXISTS " + name() + " ( ";
+        for (auto it = m_columns.begin(); it != m_columns.end(); ++it)
         {
-            query += (*it);
-            if (std::next(it) != fields.end())
+            query += (*it)->columnDefinition();
+            if (std::next(it) != m_columns.end())
             {
                 query += ", ";
             }
+            if ((*it)->foreignKey().has_value())
+            {
+                if (!foreignKeyClause.isEmpty())
+                {
+                    foreignKeyClause += ", ";
+                }
+                foreignKeyClause +=
+                        QString("FOREIGN KEY (%1) REFERENCES %2").arg((*it)->columnName(), (*it)->foreignKey().value());
+            }
         }
-        query += ");";
-        queries.append(query);
-    }
-    return queries;
-}
-
-QString SQLiteBuilder::createInsert() const
-{
-    QString query = "INSERT INTO " + m_tableName + " (";
-    QStringList columnsList;
-    QStringList valuesList;
-    for (const auto& column : m_columns)
-    {
-        columnsList << column->columnName();
-        valuesList << ":" + column->columnName();
-    }
-    query += columnsList.join(", ") + ") VALUES (" + valuesList.join(", ") + ");";
-    return query;
-}
-
-QString SQLiteBuilder::createUpdate() const
-{
-    QString query = "UPDATE " + m_tableName + " SET ";
-    QStringList setList;
-    QStringList whereList;
-    for (const auto& column : m_columns)
-    {
-        setList << column->columnName() + "=:" + column->columnName();
-        if (column->indexName() != std::nullopt)
+        if (!foreignKeyClause.isEmpty())
         {
-            whereList << column->columnName() + "=:" + column->columnName();
+            query += ", " + foreignKeyClause;
         }
+        query += " );";
+        return query;
     }
-    query += setList.join(", ");
-    query += whereClause() + ";";
 
-    return query;
-}
-
-QString SQLiteBuilder::createDelete() const
-{
-    return "DELETE FROM " + m_tableName + whereClause() + ";";
-}
-
-QString SQLiteBuilder::createSelectPk() const
-{
-    return createSelect() + whereClause() + ";";
-}
-
-QString SQLiteBuilder::createSelect() const
-{
-    return "SELECT * FROM " + m_tableName;
-}
-
-QString SQLiteBuilder::whereClause() const
-{
-    QStringList whereList;
-
-    for (const auto& item : m_columns)
+    QVector<QString> SQLiteBuilder::createIndexes() const
     {
-        auto column = std::dynamic_pointer_cast<SQLiteColumn>(item);
-        if (column->hasModifier(SQLiteModifier::isPrimaryKey))
-        {
-            whereList << column->columnName() + "=:" + column->columnName();
-        }
-    }
-    if (whereList.empty())
-    {
-        for (const auto& column : m_columns)
+        QVector<QString>                    queries;
+        std::map<QString, QVector<QString>> indexes;
+        for (const auto &column: m_columns)
         {
             if (column->indexName().has_value())
+            {
+                indexes[column->indexName().value()].push_back(column->columnName());
+            }
+        }
+
+        for (const auto &[indexName, fields]: indexes)
+        {
+            QString query = "CREATE INDEX IF NOT EXISTS " + indexName + " ON " + m_tableName.toLower() + "(";
+            for (auto it = fields.begin(); it != fields.end(); ++it)
+            {
+                query += (*it);
+                if (std::next(it) != fields.end())
+                {
+                    query += ", ";
+                }
+            }
+            query += ");";
+            queries.append(query);
+        }
+        return queries;
+    }
+
+    QString SQLiteBuilder::createInsert() const
+    {
+        QString     query = "INSERT INTO " + m_tableName + " (";
+        QStringList columnsList;
+        QStringList valuesList;
+        for (const auto &item: m_columns)
+        {
+            auto column = std::dynamic_pointer_cast<SQLiteColumn>(item);
+            if (!column->hasModifier(SQLiteModifier::isAutoIncrement))
+            {
+                columnsList << column->columnName();
+                if (column->defaultValue() != std::nullopt)
+                {
+                    valuesList << column->defaultValue().value();
+                }
+                else
+                {
+                    valuesList << ":" + column->columnName();
+                }
+            }
+        }
+        query += columnsList.join(", ") + ") VALUES (" + valuesList.join(", ") + ");";
+        return query;
+    }
+
+    QString SQLiteBuilder::createUpdate() const
+    {
+        QString     query = "UPDATE " + m_tableName + " SET ";
+        QStringList setList;
+        QStringList whereList;
+        for (const auto &item: m_columns)
+        {
+            auto column = std::dynamic_pointer_cast<SQLiteColumn>(item);
+            if (!column->hasModifier(SQLiteModifier::isAutoIncrement))
+            {
+                if (column->defaultValue() != std::nullopt)
+                {
+                    setList << column->columnName() + "=" + column->defaultValue().value();
+                }
+                else
+                {
+                    setList << column->columnName() + "=:" + column->columnName();
+                }
+            }
+            if (column->indexName() != std::nullopt)
             {
                 whereList << column->columnName() + "=:" + column->columnName();
             }
         }
+        query += setList.join(", ");
+        query += whereClause() + ";";
+
+        return query;
     }
 
-    if (!whereList.empty())
+    QString SQLiteBuilder::createDelete() const
     {
-        return " WHERE " + whereList.join(" and ");
+        return "DELETE FROM " + m_tableName + whereClause() + ";";
     }
 
-    return {};
-}
+    QString SQLiteBuilder::createSelectPk() const
+    {
+        return createSelect() + whereClause() + ";";
+    }
+
+    QString SQLiteBuilder::createSelectCount() const
+    {
+        return "SELECT COUNT(*) rows FROM " + m_tableName + ";";
+    }
+
+    QString SQLiteBuilder::createSelect() const
+    {
+        return "SELECT * FROM " + m_tableName;
+    }
+
+    QString SQLiteBuilder::whereClause() const
+    {
+        QStringList whereList;
+
+        for (const auto &item: m_columns)
+        {
+            auto column = std::dynamic_pointer_cast<SQLiteColumn>(item);
+            if (column->hasModifier(SQLiteModifier::isPrimaryKey))
+            {
+                whereList << column->columnName() + "=:" + column->columnName();
+            }
+        }
+        if (whereList.empty())
+        {
+            for (const auto &column: m_columns)
+            {
+                if (column->indexName().has_value())
+                {
+                    whereList << column->columnName() + "=:" + column->columnName();
+                }
+            }
+        }
+
+        if (!whereList.empty())
+        {
+            return " WHERE " + whereList.join(" and ");
+        }
+
+        return {};
+    }
+
+    QString SQLiteBuilder::headerParentClass() const
+    {
+        return "\"db/sqlite/sqlite_db_api.h\"";
+    }
+
+    QString SQLiteBuilder::parentClass() const
+    {
+        return "core::db::SQLiteDbApi";
+    }
 
 } // namespace core::db

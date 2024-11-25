@@ -8,15 +8,15 @@
  */
 
 #include "db_api_generator.h"
-#include "db_class.h"
 #include <QJsonDocument>
+#include "db_class.h"
 
-DBAPIGenerator::DBAPIGenerator(const QSqlDatabase& database, const bool verbose)
-    : m_verbose(verbose), m_database(database)
+DBAPIGenerator::DBAPIGenerator(const QSqlDatabase &database, const bool verbose) :
+    m_verbose(verbose), m_database(database)
 {
 }
 
-void DBAPIGenerator::generateClass(const QString& filePath, const QString& outputDirectory) const
+void DBAPIGenerator::generateClass(const QString &filePath, const QString &outputDirectory) const
 {
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly))

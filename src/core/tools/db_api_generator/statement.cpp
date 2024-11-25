@@ -8,17 +8,18 @@
  */
 
 #include "statement.h"
-#include "tools/tools.h"
 #include <ranges>
+#include "tools/tools.h"
 
-Statement::Statement(QString name, QString sql, const bool isUnique, const SQLTypes type, QVector<QString> whereFields)
-    : m_name(std::move(name)), m_type(type), m_whereFields(std::move(whereFields)), m_isUnique(isUnique)
+Statement::Statement(QString name, QString sql, const bool isUnique, const SQLTypes type,
+                     QVector<QString> whereFields) :
+    m_name(std::move(name)), m_type(type), m_whereFields(std::move(whereFields)), m_isUnique(isUnique)
 {
     m_sqlVector.append({core::tools::upperSnake(m_name), std::move(sql)});
 }
 
-Statement::Statement(QString name, QVector<QString> sqlVector, const SQLTypes type)
-    : m_name(std::move(name)), m_type(type), m_isUnique(true)
+Statement::Statement(QString name, QVector<QString> sqlVector, const SQLTypes type) :
+    m_name(std::move(name)), m_type(type), m_isUnique(true)
 {
     if (type == SQLTypes::create)
     {
@@ -31,7 +32,7 @@ Statement::Statement(QString name, QVector<QString> sqlVector, const SQLTypes ty
     else
     {
         int index = 1;
-        for (auto& sql : sqlVector)
+        for (auto &sql: sqlVector)
         {
             m_sqlVector.append({core::tools::upperSnake(QString("SENTENCE_%1").arg(index++)), std::move(sql)});
         }
@@ -65,22 +66,27 @@ QString Statement::signature() const
         return QString("void %1();\n").arg(m_name);
     }
 
-    QString signature = m_type == SQLTypes::select ? "bool " : "void ";
-
-    signature += QString("%1(const std::shared_ptr<Record>& record);\n").arg(m_name);
-    if (!m_isUnique)
+    switch (m_type)
     {
-        signature += QString("bool next%1(const std::shared_ptr<Record>& record);\n")
-                         .arg(core::tools::capitalizeFirstLetter(m_name));
+        case SQLTypes::select:
+        {
+            QString signature = QString("bool %1(Record& record);\n").arg(m_name);
+            if (!m_isUnique)
+            {
+                signature += QString("bool next%1(Record& record);\n").arg(core::tools::capitalizeFirstLetter(m_name));
+            }
+            return signature;
+        }
+        case SQLTypes::count:
+            return QString("long long %1();\n").arg(m_name);
     }
-
-    return signature;
+    return QString("void %1(Record& record);\n").arg(m_name);
 }
 
 QString Statement::sentences() const
 {
     QString sentences;
-    for (const auto& [key, value] : m_sqlVector)
+    for (const auto &[key, value]: m_sqlVector)
     {
         sentences += QString("const QString %1 = \"%2\";\n").arg(key, value);
     }
@@ -95,8 +101,19 @@ QString Statement::sqlQuery() const
 QString Statement::attributes() const
 {
     QString attributes;
-    const auto& [key, value] = m_sqlVector.at(0);
-    attributes += QString("m_%1(%2,m_database)").arg(m_name, key);
+    const auto &[key, value] = m_sqlVector.at(0);
+    attributes += QString("m_%1(m_database)").arg(m_name);
+    return attributes;
+}
+
+QString Statement::prepare() const
+{
+    QString attributes;
+    if (m_type != SQLTypes::create)
+    {
+        const auto &[key, value] = m_sqlVector.at(0);
+        attributes += QString("m_%1.prepare(%2);\n").arg(m_name, key);
+    }
     return attributes;
 }
 
@@ -108,7 +125,7 @@ int Statement::sqlSize() const
 QString Statement::defines() const
 {
     QStringList elements;
-    for (const auto& first : m_sqlVector | std::views::keys)
+    for (const auto &first: m_sqlVector | std::views::keys)
     { // Structured binding to get 'first' directly
         elements << first;
     }
