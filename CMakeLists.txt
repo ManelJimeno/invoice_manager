@@ -25,7 +25,7 @@ include(version)
 include(pre_commit_config)
 
 # Load functions are used to generate table classes from JSON files
-include(tables_config)
+include(tools_config)
 
 # Specify Conan routines for dependency management
 set(CMAKE_PROJECT_TOP_LEVEL_INCLUDES "${CMAKE_SOURCE_DIR}/scripts/cmake/conan_provider.cmake")
