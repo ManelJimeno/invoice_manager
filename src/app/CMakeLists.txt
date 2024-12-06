@@ -80,6 +80,10 @@ add_executable(${APPLICATION_NAME} ${APP_SOURCES})
 generate_json_sources(${APPLICATION_NAME} "${CMAKE_CURRENT_SOURCE_DIR}/modules/security/tables"
                       "${CMAKE_CURRENT_SOURCE_DIR}/modules/security")
 
+# Add QML menus
+generate_qml_sources(${APPLICATION_NAME} "${CMAKE_CURRENT_SOURCE_DIR}/modules/ui/menus"
+                     "${CMAKE_CURRENT_SOURCE_DIR}/qml")
+
 # Link necessary dependencies
 target_link_libraries(${APPLICATION_NAME} PRIVATE ${PROGRAM_DEPENDENCIES})
 

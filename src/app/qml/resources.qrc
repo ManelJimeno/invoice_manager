@@ -8,6 +8,10 @@
         <file>login_page.qml</file>
         <file>progress_page.qml</file>
         <file>CustomButton.qml</file>
+        <file>images/default_24.svg</file>
+        <file>images/settings_24.svg</file>
+        <file>images/logout_24.svg</file>
+        <file>images/info_24.svg</file>
     </qresource>
     <qresource prefix="/themes">
         <file>Themes/themes_01.qml</file>
