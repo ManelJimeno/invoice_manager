@@ -11,7 +11,7 @@
 
 #include <QApplication>
 #include <QQmlContext>
-#include <QtConcurrent>
+#include <QtConcurrentRun>
 
 
 InitDialog::InitDialog(QQmlApplicationEngine *engine, std::function<void()> initCallback, QObject *parent) :
