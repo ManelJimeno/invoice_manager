@@ -4,6 +4,7 @@
 <RCC>
     <qresource prefix="/">
         <file>main_window.qml</file>
+        <file>MainMenu.qml</file>
         <file>init_dialog.qml</file>
         <file>login_page.qml</file>
         <file>progress_page.qml</file>
