@@ -1,0 +1,6 @@
+&Application;;
+  Settings; console.log("Settings triggered"); icon.source="images/settings_24.svg"
+  -;
+  Exit; Qt.quit(); shortcut=StandardKey.Quit; icon.source="images/logout_24.svg"
+&Help;
+  About this...; controller.showAboutDialog(); icon.source="images/info_24.svg"

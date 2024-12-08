@@ -24,7 +24,6 @@ InvoiceManagerApp::InvoiceManagerApp(int &argc, char **argv) :
 {
     auto aboutQuit = connect(this, &QCoreApplication::aboutToQuit, this, &InvoiceManagerApp::onAboutToQuit);
     QQuickStyle::setStyle("Material");
-    m_engine.rootContext()->setContextProperty("mainWindow", &m_mainWindow);
     m_engine.addImportPath(QStringLiteral("qrc:/themes"));
 }
 
@@ -55,7 +54,7 @@ int InvoiceManagerApp::loop()
         {
             init.show();
         }
-        catch (LoginError)
+        catch (LoginError &)
         {
             throw;
         }
@@ -72,6 +71,7 @@ int InvoiceManagerApp::loop()
             },
             Qt::QueuedConnection);
 
+    m_engine.rootContext()->setContextProperty("controller", &m_mainWindow);
     m_engine.load(url);
     return exec();
 }

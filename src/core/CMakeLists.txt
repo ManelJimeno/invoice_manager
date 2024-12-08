@@ -118,6 +118,7 @@ add_library(invoice::${INVOICE_CORE_LIBRARY} ALIAS ${INVOICE_CORE_LIBRARY})
 # Add tools build
 if(INVOICE_CORE_TOOLS)
     add_subdirectory(tools/db_api_generator)
+    add_subdirectory(tools/menu_generator)
 endif()
 
 # Unit test If unit tests are enabled, include the test configuration and build them

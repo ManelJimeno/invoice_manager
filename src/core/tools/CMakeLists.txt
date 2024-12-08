@@ -7,3 +7,4 @@
 #
 
 add_subdirectory(db_api_generator)
+add_subdirectory(menu_generator)

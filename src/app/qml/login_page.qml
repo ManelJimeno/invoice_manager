@@ -11,9 +11,9 @@ Page {
     function login() {
         let loginResult;
         if (loginPassword.text === "") {
-            loginResult = loginPage.initDialog.checkUser(loginUsername.text);
+            loginResult = initDialog.checkUser(loginUsername.text);
         } else {
-            loginResult = loginPage.initDialog.login(loginUsername.text, loginPassword.text);
+            loginResult = initDialog.login(loginUsername.text, loginPassword.text);
         }
         switch (loginResult) {
         case 3:
@@ -144,7 +144,7 @@ Page {
 
                 onClicked: {
                     if (loginPage.login()) {
-                        loginPage.initDialog.close();
+                        initDialog.close();
                     }
                 }
             }
@@ -159,7 +159,7 @@ Page {
                 onClicked: {
                     cancel_button.enabled = false;
                     login_button.enabled = false;
-                    loginPage.initDialog.exit(-2);
+                    initDialog.exit(-2);
                 }
             }
         }
